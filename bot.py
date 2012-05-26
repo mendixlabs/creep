@@ -12,12 +12,14 @@ app = Flask(__name__)
 if __name__ == "__main__":
     jid = config.get('xmpp', 'username')
     password = config.get('xmpp', 'password')
-    to = config.get('xmpp', 'recipient')
+    room = config.get('xmpp', 'room')
     server = config.get('xmpp', 'server')
+    resource = config.get('xmpp', 'resource')
     host = config.get('http', 'host')
     port = int(config.get('http', 'port'))
 
-    conn = sleekxmpp.ClientXMPP('%s/collector' % jid, password)
+    conn = sleekxmpp.ClientXMPP('%s/%s' % (jid, resource), password)
+    conn.register_plugin('xep_0045')
 
     @app.route("/", methods=['POST',])
     def index():
@@ -25,7 +27,7 @@ if __name__ == "__main__":
             msg = request.json['message']
         else:
             msg = request.data
-        conn.send_message(mto=to, mbody="%s" % msg)
+        conn.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
         return "message sent"
 
     print("Connecting %s to xmppserver %s" % (jid, server))
@@ -33,4 +35,12 @@ if __name__ == "__main__":
     print("Connected")
 
     conn.process(threaded=True)
-    app.run(host=host, port=port)
+    def handle_connected(self):
+        print("Started processing")
+        conn.plugin['xep_0045'].joinMUC(room,
+            'creep',
+            wait=True)
+        print("Connected to chat room '%s'" % room)
+        app.run(host=host, port=port)
+
+    conn.add_event_handler("session_start", handle_connected)
