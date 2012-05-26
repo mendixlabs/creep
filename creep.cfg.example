@@ -1,0 +1,11 @@
+[xmpp]
+username: creep@example.com
+password: secret
+room: bofh@conference.example.com
+recipient: john.smith@example.com
+server: xmpp.example.com
+resource: creep
+
+[http]
+port: 8000
+host: 127.0.0.1
