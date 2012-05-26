@@ -3,7 +3,7 @@ from ConfigParser import ConfigParser
 import sleekxmpp
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 config = ConfigParser()
 config.read(['creep.cfg', '/usr/local/etc/creep.cfg'])
@@ -30,17 +30,17 @@ if __name__ == "__main__":
         conn.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
         return "message sent"
 
-    print("Connecting %s to xmppserver %s" % (jid, server))
+    logging.info("Connecting %s to xmppserver %s" % (jid, server))
     conn.connect((server, 5222))
-    print("Connected")
+    logging.info("Connected")
 
     conn.process(threaded=True)
     def handle_connected(self):
-        print("Started processing")
+        logging.info("Started processing")
         conn.plugin['xep_0045'].joinMUC(room,
             'creep',
             wait=True)
-        print("Connected to chat room '%s'" % room)
+        logging.info("Connected to chat room '%s'" % room)
         app.run(host=host, port=port)
 
     conn.add_event_handler("session_start", handle_connected)
