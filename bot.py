@@ -14,6 +14,7 @@ if __name__ == "__main__":
     password = config.get('xmpp', 'password')
     to = config.get('xmpp', 'recipient')
     server = config.get('xmpp', 'server')
+    host = config.get('http', 'host')
     port = int(config.get('http', 'port'))
 
     conn = sleekxmpp.ClientXMPP('%s/collector' % jid, password)
@@ -32,4 +33,4 @@ if __name__ == "__main__":
     print("Connected")
 
     conn.process(threaded=True)
-    app.run(port=port)
+    app.run(host=host, port=port)
