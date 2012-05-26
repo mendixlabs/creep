@@ -6,7 +6,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 config = ConfigParser()
-config.read(['creep.cfg', '/usr/local/etc/creep.cfg'])
+config.read(['/usr/local/etc/creep.cfg', 'creep.cfg'])
 app = Flask(__name__)
 
 jid = config.get('xmpp', 'username')
