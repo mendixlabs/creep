@@ -1,7 +1,8 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, make_response, render_template, redirect
 from ConfigParser import ConfigParser
 import sleekxmpp
 import logging
+from base64 import decodestring
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,12 +17,23 @@ server = config.get('xmpp', 'server')
 resource = config.get('xmpp', 'resource')
 host = config.get('http', 'host')
 port = int(config.get('http', 'port'))
+secret_key = config.get('http', 'secret')
 
 conn = sleekxmpp.ClientXMPP('%s/%s' % (jid, resource), password)
 conn.register_plugin('xep_0045')
 
 @app.route("/", methods=['POST',])
 def index():
+    if request.headers['Authorization']:
+        (auth_type, credentials) = request.headers['Authorization'].split(" ")
+        secret = decodestring(credentials).rstrip()
+        if auth_type != 'basic':
+            return make_response("basic http auth supported only", 401)
+        if secret != secret_key:
+            return make_response("forbidden", 403)
+    else:
+        return make_response("forbidden", 403)
+
     if request.content_type == 'application/json':
         msg = request.json['message']
     else:
