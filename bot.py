@@ -27,7 +27,7 @@ def index():
     if request.headers['Authorization']:
         (auth_type, credentials) = request.headers['Authorization'].split(" ")
         secret = decodestring(credentials).rstrip()
-        if auth_type != 'basic':
+        if auth_type != 'Basic':
             return make_response("basic http auth supported only", 401)
         if secret != secret_key:
             return make_response("forbidden", 403)
