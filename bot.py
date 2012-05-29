@@ -1,5 +1,4 @@
 from flask import Flask, request, make_response, render_template, redirect
-from ConfigParser import ConfigParser
 import sleekxmpp
 import logging
 import signal
