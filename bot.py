@@ -35,9 +35,11 @@ def index():
 
     if request.content_type == 'application/json':
         msg = request.json['message']
+        room = request.json['room']
     else:
         msg = request.data
-    conn.send_message(mto=config['xmpp']['room'], mbody="%s" % msg, mtype='groupchat')
+        room = config['xmpp']['default_room']
+    conn.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
     return "message sent\n"
 
 logging.info("Connecting %s" % config['xmpp']['jid'])
@@ -50,10 +52,11 @@ logging.info("Connected")
 conn.process()
 def handle_connected(self):
     logging.info("Started processing")
-    conn.plugin['xep_0045'].joinMUC(config['xmpp']['room'],
-        'creep',
-        wait=True)
-    logging.info("Connected to chat room '%s'" % config['xmpp']['room'])
+    for room in config['xmpp'].get('autojoin',[]):
+        conn.plugin['xep_0045'].joinMUC(room,
+            'creep',
+            wait=True)
+        logging.info("Connected to chat room '%s'" % room)
     app.run(host=config['http']['host'], port=config['http']['port'])
 
 conn.add_event_handler("session_start", handle_connected)
