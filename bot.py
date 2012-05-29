@@ -39,8 +39,11 @@ def index():
     conn.send_message(mto=config['xmpp']['room'], mbody="%s" % msg, mtype='groupchat')
     return "message sent\n"
 
-logging.info("Connecting %s to xmppserver %s" % (config['xmpp']['jid'], config['xmpp']['server']))
-conn.connect((config['xmpp']['server'], config['xmpp']['port']))
+logging.info("Connecting %s" % config['xmpp']['jid'])
+if 'server' in config['xmpp'] and 'port' in config['xmpp']:
+    conn.connect((config['xmpp']['server'], config['xmpp']['port']))
+else:
+    conn.connect()
 logging.info("Connected")
 
 conn.process()

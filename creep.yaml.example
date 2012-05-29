@@ -2,8 +2,9 @@ xmpp:
  jid: creep@example.com
  resource: creep
  password: secret
- server: xmpp.example.org
- port: 5222
+ # optional: use server, port when SRV records are not available
+ #server: xmpp.example.org
+ #port: 5222
 
 http:
  host: 127.0.0.1
