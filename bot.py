@@ -46,7 +46,7 @@ logging.info("Connecting %s to xmppserver %s" % (jid, server))
 conn.connect((server, 5222))
 logging.info("Connected")
 
-conn.process(threaded=True)
+conn.process()
 def handle_connected(self):
     logging.info("Started processing")
     conn.plugin['xep_0045'].joinMUC(room,
