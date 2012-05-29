@@ -1,0 +1,11 @@
+xmpp:
+ jid: creep@example.com
+ resource: creep
+ password: secret
+ server: xmpp.example.org
+ port: 5222
+
+http:
+ host: 127.0.0.1
+ port: 8000
+ secret: blaat
