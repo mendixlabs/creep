@@ -9,4 +9,5 @@ xmpp:
 http:
  host: 127.0.0.1
  port: 8000
- secret: blaat
+ # optional: shared secret which has to be sent for authentication
+ #secret: blaat

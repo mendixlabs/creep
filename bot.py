@@ -22,15 +22,16 @@ conn.register_plugin('xep_0045')
 
 @app.route("/", methods=['POST',])
 def index():
-    if request.headers['Authorization']:
-        (auth_type, credentials) = request.headers['Authorization'].split(" ")
-        secret = decodestring(credentials).rstrip()
-        if auth_type != 'Basic':
-            return make_response("basic http auth supported only", 401)
-        if secret != config['http']['secret']:
+    if 'secret' in config['http']:
+        if request.headers['Authorization']:
+            (auth_type, credentials) = request.headers['Authorization'].split(" ")
+            secret = decodestring(credentials).rstrip()
+            if auth_type != 'Basic':
+                return make_response("basic http auth supported only", 401)
+            if secret != config['http']['secret']:
+                return make_response("forbidden", 403)
+        else:
             return make_response("forbidden", 403)
-    else:
-        return make_response("forbidden", 403)
 
     if request.content_type == 'application/json':
         msg = request.json['message']
