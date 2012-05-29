@@ -16,4 +16,10 @@ http:
  host: 127.0.0.1
  port: 8000
  # optional: shared secret which has to be sent for authentication
- #secret: blaat
+ secret: blaat
+ # or... a list of possible secrets, of which one has to be provided
+ #secret: [
+ # "foo",
+ # "bar",
+ #]
+

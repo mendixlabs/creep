@@ -22,12 +22,12 @@ conn.register_plugin('xep_0045')
 @app.route("/", methods=['POST',])
 def index():
     if 'secret' in config['http']:
-        if request.headers['Authorization']:
-            (auth_type, credentials) = request.headers['Authorization'].split(" ")
-            secret = decodestring(credentials).rstrip()
-            if auth_type != 'Basic':
-                return make_response("basic http auth supported only", 401)
-            if secret != config['http']['secret']:
+        if 'Creep-Authentication' in request.headers:
+            provided_secret = decodestring(request.headers['Creep-Authentication']).rstrip()
+            if isinstance(config['http']['secret'], list):
+                if not provided_secret in config['http']['secret']:
+                    return make_response("forbidden", 403)
+            elif provided_secret != config['http']['secret']:
                 return make_response("forbidden", 403)
         else:
             return make_response("forbidden", 403)
