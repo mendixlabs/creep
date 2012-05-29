@@ -2,6 +2,7 @@ from flask import Flask, request, make_response, render_template, redirect
 from ConfigParser import ConfigParser
 import sleekxmpp
 import logging
+import signal
 from base64 import decodestring
 
 logging.basicConfig(level=logging.INFO)
@@ -55,3 +56,12 @@ def handle_connected(self):
     app.run(host=host, port=port)
 
 conn.add_event_handler("session_start", handle_connected)
+
+def handle_ctrl_c(signal, frame):
+    conn.disconnect(wait=True)
+
+signal.signal(signal.SIGINT, handle_ctrl_c)
+
+# wait for a signal, so the main thread does not vanish (which means it would not be
+# there anymore to react on ctrl-c)
+signal.pause()
