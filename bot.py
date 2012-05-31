@@ -39,7 +39,7 @@ def index():
         msg = request.data
         room = config['xmpp']['default_room']
     conn.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
-    return "message sent\n"
+    return ""
 
 logging.info("Connecting %s" % config['xmpp']['jid'])
 if 'server' in config['xmpp'] and 'port' in config['xmpp']:
