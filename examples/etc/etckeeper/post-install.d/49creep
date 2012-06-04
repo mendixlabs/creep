@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+		
+pl="/var/cache/etckeeper/packagelist"
+
+# push summary of changes to creep
+echo "`hostname -f`: `etckeeper list-installed | diff -U0 $pl.pre-install - | tail -n+4 | egrep '^[-+]' | /usr/local/bin/etckeeper-creep-summary.py`" | /usr/local/bin/creep.sh

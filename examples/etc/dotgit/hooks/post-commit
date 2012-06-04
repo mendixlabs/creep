@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# An example hook script that is called after a successful
+# commit is made.
+#
+# To enable this hook, make this file executable.
+
+#: Nothing
+
+echo "`hostname -f`: `git log -1 --format=format:"%s"`" | /usr/local/bin/creep.sh
+
