@@ -9,6 +9,7 @@
 
 # config
 url = 'https://creep.example.com'
+changeset_view_url = 'https://trac/%s/changeset/%s'
 headers = {
     'Content-Type': 'application/json',
     'Creep-Authentication': 'base64something==',
@@ -64,7 +65,9 @@ try:
     for chan in loc:
         if len(loc[chan]) > 0:
             locations = ','.join(loc[chan])
-            text = '%s/%s [%s] by %s: %s' % (repname, locations, rev, author, msg)
+            changeset_url = changeset_view_url % (repname, rev)
+            text = '%s - %s/%s [%s] by %s: %s' % (changeset_url, repname, \
+                    locations, rev, author, msg)
             body = {"message": text, "room": "%s@conference.example.com" % chan}
             socket.setdefaulttimeout(2)
             h = httplib2.Http()
