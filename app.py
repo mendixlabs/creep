@@ -5,6 +5,7 @@ import signal
 import os
 import yaml
 from base64 import decodestring
+from plugins import handlers #magic happens here :S
 
 logging.basicConfig(level=logging.INFO)
 
@@ -50,21 +51,38 @@ logging.info("Connected")
 
 conn.process()
 def handle_connected(self):
+    conn.send_presence()
     logging.info("Started processing")
     for room in config['xmpp'].get('autojoin',[]):
         conn.plugin['xep_0045'].joinMUC(room,
             'creep',
             wait=True)
         logging.info("Connected to chat room '%s'" % room)
-    app.run(host=config['http']['host'], port=config['http']['port'])
 
+def handle_message(message):
+    print "FAK"
+    body = message['body']
+    if ":" in body:
+        command = body.split(':')[0]
+        if command in handlers:
+            handler = handlers[command]
+            result = handler()
+            message.reply(result).send()
+        else:
+            reply = 'Unknown command: \n%s' % body
+            message.reply(reply).send()
+    else:
+        reply = 'Sorry, I didn\'t understand \n%s' % body
+        message.reply(reply).send()
+
+    logging.debug('Handled request "%s"' % body)
+    
 conn.add_event_handler("session_start", handle_connected)
+conn.add_event_handler('message', handle_message)
 
 def handle_ctrl_c(signal, frame):
     conn.disconnect(wait=True)
 
 signal.signal(signal.SIGINT, handle_ctrl_c)
 
-# wait for a signal, so the main thread does not vanish (which means it would not be
-# there anymore to react on ctrl-c)
-signal.pause()
+app.run(host=config['http']['host'], port=config['http']['port'])

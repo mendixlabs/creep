@@ -1,0 +1,3 @@
+class Plugin():
+    provides = []
+    pass
