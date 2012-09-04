@@ -1,5 +1,6 @@
 from plugin import Plugin
 import sqlite3
+import re
 
 class Quotes(Plugin):
 
@@ -13,8 +14,8 @@ class Quotes(Plugin):
         conn = sqlite3.connect(self.db)
         try:
             cursor = conn.cursor()
-            query = 'insert into quotes (content) values (\'%s\')' % message
-            result = cursor.execute(query)
+            query = 'insert into quotes (content) values (?)'
+            result = cursor.execute(query, [message])
             quote_id = result.lastrowid
             cursor.close()
             conn.commit()
@@ -30,8 +31,8 @@ class Quotes(Plugin):
             conn = sqlite3.connect(self.db)
             with conn:
                 cursor = conn.cursor()
-                query = 'select content from quotes where id=%s' % quote_id
-                result = cursor.execute(query).fetchone()
+                query = 'select content from quotes where id=?'
+                result = cursor.execute(query, [quote_id]).fetchone()
                 if result is None:
                     return 'quote not found'
                 quote = result[0]
@@ -63,12 +64,12 @@ class Quotes(Plugin):
         conn = sqlite3.connect(self.db)
         with conn:
             cursor = conn.cursor()
-            query = 'select content from quotes where content like \'%%%s%%\' \
-                    limit 3' % message
-            result = cursor.execute(query).fetchall()
-            result = map(lambda x: x[0], result)
-            if result is None:
+            query = 'select content from quotes where content like ?  \
+                    limit 3'
+            result = cursor.execute(query, ['%%%s%%' % message]).fetchall()
+            if len(result) == 0:
                 return 'no quotes found'
+            result = map(lambda x: x[0], result)
             quote = '\n'.join(result)
             cursor.close()
             conn.commit()
