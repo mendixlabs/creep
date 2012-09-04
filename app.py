@@ -61,18 +61,14 @@ def handle_connected(self):
 
 def handle_message(message):
     body = message['body']
-    if ":" in body:
-        command = body.split(':')[0]
-        params = ":".join(body.split(':')[1:]).strip()
-        if command in handlers:
-            handler = handlers[command]
-            result = handler(message=params, origin=message.get_from())
-            message.reply(result).send()
-        else:
-            reply = 'Unknown command: \n%s' % body
-            message.reply(reply).send()
+    command = body.split(' ')[0] if ' ' in body else body
+    params = body[body.find(" ")+1:] if ' ' in body else None
+    if command in handlers:
+        handler = handlers[command]
+        result = handler(message=params, origin=message.get_from())
+        message.reply(result).send()
     else:
-        reply = 'Sorry, I didn\'t understand "\n%s"' % body
+        reply = 'Unknown command: \n%s' % body
         message.reply(reply).send()
 
     logging.debug('Handled request "%s"' % body)

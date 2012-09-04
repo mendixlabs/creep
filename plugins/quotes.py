@@ -32,8 +32,8 @@ class Quotes(Plugin):
                 cursor = conn.cursor()
                 query = 'select content from quotes where id=%s' % quote_id
                 result = cursor.execute(query).fetchone()
-                if not len(result):
-                    return 'quote note found'
+                if result is None:
+                    return 'quote not found'
                 quote = result[0]
                 cursor.close()
                 conn.commit()
