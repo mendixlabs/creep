@@ -4,7 +4,7 @@ from plugin import Plugin
 logging.basicConfig(level=logging.INFO)
 
 handlers = {}
-activated_plugins = ['hello',]
+activated_plugins = ['quotes',]
 for activated_plugin in activated_plugins:
     plugin = __import__('plugins.%s' % activated_plugin, fromlist=['plugins',])
     for i in dir(plugin):

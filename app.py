@@ -60,19 +60,19 @@ def handle_connected(self):
         logging.info("Connected to chat room '%s'" % room)
 
 def handle_message(message):
-    print "FAK"
     body = message['body']
     if ":" in body:
         command = body.split(':')[0]
+        params = ":".join(body.split(':')[1:]).strip()
         if command in handlers:
             handler = handlers[command]
-            result = handler()
+            result = handler(message=params, origin=message.get_from())
             message.reply(result).send()
         else:
             reply = 'Unknown command: \n%s' % body
             message.reply(reply).send()
     else:
-        reply = 'Sorry, I didn\'t understand \n%s' % body
+        reply = 'Sorry, I didn\'t understand "\n%s"' % body
         message.reply(reply).send()
 
     logging.debug('Handled request "%s"' % body)
