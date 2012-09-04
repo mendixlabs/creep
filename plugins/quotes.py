@@ -3,7 +3,7 @@ import sqlite3
 
 class Quotes(Plugin):
 
-    provides = ['aq', 'iq', 'q']
+    provides = ['aq', 'iq', 'q', 'sq']
 
     def __init__(self):
         self.db = 'quotes.db'
@@ -51,9 +51,25 @@ class Quotes(Plugin):
             cursor = conn.cursor()
             query = 'select content from quotes order by random() limit 1;'
             result = cursor.execute(query).fetchone()
-            if not len(result):
+            if result is None:
                 return 'no quotes found'
             quote = result[0]
+            cursor.close()
+            conn.commit()
+
+            return str(quote)
+
+    def sq(self, message=None, origin=None):
+        conn = sqlite3.connect(self.db)
+        with conn:
+            cursor = conn.cursor()
+            query = 'select content from quotes where content like \'%%%s%%\' \
+                    limit 3' % message
+            result = cursor.execute(query).fetchall()
+            result = map(lambda x: x[0], result)
+            if result is None:
+                return 'no quotes found'
+            quote = '\n'.join(result)
             cursor.close()
             conn.commit()
 
@@ -72,6 +88,5 @@ class Quotes(Plugin):
 
             cursor.close()
             conn.commit()
-
     def __str__(self):
         return "Quotes plugin"
