@@ -6,7 +6,7 @@ class Quotes(Plugin):
 
     provides = ['aq', 'iq', 'q', 'sq']
 
-    def __init__(self):
+    def __init__(self, xmpp, config=None):
         self.db = 'quotes.db'
         self.__initialize_db()
 
