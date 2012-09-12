@@ -36,18 +36,26 @@ def handle_connected(self):
 
 def handle_message(message):
     body = message['body']
-    command = body.split(' ')[0] if ' ' in body else body
-    params = body[body.find(" ")+1:] if ' ' in body else None
-    if command in handlers:
-        handler = handlers[command]
-        result = handler(message=params, origin=message.get_from())
-        message.reply(result).send()
-    else:
-        reply = 'Unknown command: \n%s' % body
-        message.reply(reply).send()
+    if not from_us(message):
+        command = body.split(' ')[0] if ' ' in body else body
+        params = body[body.find(" ")+1:] if ' ' in body else None
+        if command in handlers:
+            handler = handlers[command]
+            result = handler(message=params, origin=message.get_from())
+            message.reply(result).send()
+        else:
+            reply = 'Unknown command: \n%s' % body
+            message.reply(reply).send()
 
     logging.debug('Handled request "%s"' % body)
     
+def from_us(message):
+    if message.get_mucroom():
+        message_from = str(message.get_from())
+        (location, resource) = message_from.split('/')
+        return (resource == conn.plugin['xep_0045'].ourNicks[location])
+    return False
+
 conn.add_event_handler("session_start", handle_connected)
 conn.add_event_handler('message', handle_message)
 
