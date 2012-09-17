@@ -37,18 +37,24 @@ def handle_connected(self):
 def handle_message(message):
     body = message['body']
     if not from_us(message):
-        command = body.split(' ')[0] if ' ' in body else body
-        params = body[body.find(" ")+1:] if ' ' in body else None
-        if command in handlers:
-            handler = handlers[command]
-            result = handler(message=params, origin=message.get_from())
-            message.reply(result).send()
-        else:
-            reply = 'Unknown command: \n%s' % body
+        if not message.get_mucroom():
+            reply = __handle_message(body, message.get_from())
+            message.reply(reply).send()
+        elif message.get_mucroom() and body.startswith('!'):
+            reply = __handle_message(body[1:], message.get_from())
             message.reply(reply).send()
 
     logging.debug('Handled request "%s"' % body)
     
+def __handle_message(body, origin):
+    command = body.split(' ')[0] if ' ' in body else body
+    params = body[body.find(" ")+1:] if ' ' in body else None
+    if command in handlers:
+        handler = handlers[command]
+        result = handler(message=params, origin=origin)
+        return result
+    else:
+        return 'Unknown command: \n%s' % body
 def from_us(message):
     if message.get_mucroom():
         message_from = str(message.get_from())
