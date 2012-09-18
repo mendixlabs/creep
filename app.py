@@ -66,9 +66,14 @@ conn.add_event_handler("session_start", handle_connected)
 conn.add_event_handler('message', handle_message)
 
 activated_plugins = ['quotes', 'http-json']
-handlers = load_plugins(activated_plugins, conn, config)
+(plugins, handlers) = load_plugins(activated_plugins, conn, config)
 def handle_ctrl_c(signal, frame):
+    for plugin in plugins:
+        plugin.shutdown()
     conn.disconnect(wait=True)
 
 signal.signal(signal.SIGINT, handle_ctrl_c)
 
+# wait for a signal, so the main thread does not vanish (which means it would not be
+# there anymore to react on ctrl-c)
+signal.pause()

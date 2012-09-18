@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, render_template, redirect
 from base64 import decodestring
 from plugin import Plugin
-from threading import Thread
+from multiprocessing import Process
 
 app = Flask(__name__)
 
@@ -11,8 +11,8 @@ class HttpJson(Plugin):
         kwargs = {'host' : config['http']['host'], 'port' : config['http']['port']}
         HttpJson.config = config
         HttpJson.xmpp = xmpp
-        self.thread = Thread(target=app.run, kwargs=kwargs)
-        self.thread.start()
+        self.server = Process(target=app.run)
+        self.server.start()
         print "initialized http-json"
 
     @app.route("/", methods=['POST',])
@@ -36,3 +36,6 @@ class HttpJson(Plugin):
             room = HttpJson.config['xmpp']['default_room']
         HttpJson.xmpp.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
         return ""
+
+    def shutdown(self):
+        self.server.terminate()
