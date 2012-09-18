@@ -58,8 +58,9 @@ def __handle_message(body, origin):
 def from_us(message):
     if message.get_mucroom():
         message_from = str(message.get_from())
-        (location, resource) = message_from.split('/')
-        return (resource == conn.plugin['xep_0045'].ourNicks[location])
+        if '/' in message_from:
+            (location, resource) = message_from.split('/')
+            return (resource == conn.plugin['xep_0045'].ourNicks[location])
     return False
 
 conn.add_event_handler("session_start", handle_connected)
