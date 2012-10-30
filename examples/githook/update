@@ -20,9 +20,7 @@ if len(sys.argv) is not 4:
     print "Not enough arguments passed: %s ref old new" % sys.argv[0]
     exit(1)
 
-ref = sys.argv[1]
-old = sys.argv[2]
-new = sys.argv[3]
+(ref, old, new) = sys.argv[1:]
 
 if not re.match(r'^([_/a-zA-Z0-9]+)?$', ref):
     print "Invalid ref: %s" % ref
