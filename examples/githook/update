@@ -1,0 +1,31 @@
+#!/usr/bin/python
+import socket
+import commands
+import httplib2
+import json
+import sys
+
+url = 'https://creep.exaple.com/'
+headers = {
+    'Content-Type': 'application/json',
+    'Creep-Authentication': 'my_hyper_secure_password',
+}
+command = ("git log %s..%s" % (sys.argv[2], sys.argv[3])) + " --pretty=format:'" + sys.argv[1] + " [%h] by %ae - %s%n%b' --stat"
+
+try:
+    message = commands.getoutput(command)
+
+    body = {"message": message, "room": "room@conference.example.nl"}
+    socket.setdefaulttimeout(2)
+    h = httplib2.Http()
+    h.request(url, "POST", json.dumps(body), headers=headers)
+
+except Exception, ex:
+    try:
+        text = 'creephook for git: Exception while parsing'
+        body = {"message": text, "room": "room@conference.example.nl"}
+        h = httplib2.Http()
+        h.request(url, "POST", json.dumps(body), headers=headers)
+
+    except Exception, v:
+        print v
