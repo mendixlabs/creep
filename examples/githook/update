@@ -4,6 +4,7 @@ import commands
 import httplib2
 import json
 import sys
+import re
 
 url = 'https://creep.example.com/'
 password = 'my_hyper_secure_password'
@@ -14,11 +15,37 @@ headers = {
     'Creep-Authentication': password,
 }
 
-command = ("git log %s..%s" % (sys.argv[2], sys.argv[3])) + " --pretty=format:'" + sys.argv[1] + " [%h] by %ae - %s%n%b' --stat"
+# input validation
+if len(sys.argv) is not 4:
+    print "Not enough arguments passed: %s ref old new" % sys.argv[0]
+    exit(1)
+
+ref = sys.argv[1]
+old = sys.argv[2]
+new = sys.argv[3]
+
+if not re.match(r'^([_/a-zA-Z0-9]+)?$', ref):
+    print "Invalid ref: %s" % ref
+    exit(1)
+
+if not re.match(r'^\w+$', old):
+    print "Invalid old: %s" % old
+    exit(1)
+
+if not re.match(r'^\w+$', new):
+    print "Invalid new: %s" % new
+    exit(1)
+
+if old == '0000000000000000000000000000000000000000':
+    heads = commands.getoutput("git for-each-ref --format='%(refname)' 'refs/heads/*'")
+    heads = heads.replace('\n',' ')
+    heads = re.sub(r'^/', '^', heads)
+    command = "git log --pretty=format:'[%%h] by %%ae - %%s%%n%%b' --stat %s --not %s" % (new, heads)
+else:
+    command = "git log %s..%s --pretty=format:'[%%h] by %%ae - %%s%%n%%b' --stat %s" % (old, new, ref)
 
 try:
     message = commands.getoutput(command)
-
     body = {"message": message, "room": room}
     socket.setdefaulttimeout(2)
     h = httplib2.Http()
