@@ -1,9 +1,7 @@
 #!/usr/bin/python
 import sys
 import json
-import os
 
-# room must be passed as the first argument
 if len(sys.argv) > 1:
     room = sys.argv[1]
 else:
