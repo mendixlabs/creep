@@ -7,35 +7,35 @@ class Creep():
     def __init__(self, config):
         logging.basicConfig(level=logging.INFO)
         self.config = config
-        self.conn = sleekxmpp.ClientXMPP(
+        self.xmpp = sleekxmpp.ClientXMPP(
             '%s/%s' % (config['xmpp']['jid'], config['xmpp']['resource']),
             config['xmpp']['password']
         )
 
-        self.conn.register_plugin('xep_0045')
+        self.xmpp.register_plugin('xep_0045')
 
         logging.info("Connecting %s" % config['xmpp']['jid'])
         if 'server' in config['xmpp'] and 'port' in config['xmpp']:
-            self.conn.connect((config['xmpp']['server'], config['xmpp']['port']))
+            self.xmpp.connect((config['xmpp']['server'], config['xmpp']['port']))
         else:
-            self.conn.connect()
+            self.xmpp.connect()
         logging.info("Connected")
 
-        self.conn.process()
+        self.xmpp.process()
 
-        self.conn.add_event_handler("session_start", self.handle_connected)
-        self.conn.add_event_handler('message', self.handle_message)
+        self.xmpp.add_event_handler("session_start", self.handle_connected)
+        self.xmpp.add_event_handler('message', self.handle_message)
 
         activated_plugins = ['quotes', 'http-json']
-        (plugins, handlers) = load_plugins(activated_plugins, self.conn, config)
+        (plugins, handlers) = load_plugins(activated_plugins, self.xmpp, config)
         self.plugins = plugins
 
 
     def handle_connected(self, flap):
-        self.conn.send_presence()
+        self.xmpp.send_presence()
         logging.info("Started processing")
         for room in self.config['xmpp'].get('autojoin',[]):
-            self.conn.plugin['xep_0045'].joinMUC(room,
+            self.xmpp.plugin['xep_0045'].joinMUC(room,
                 'creep',
                 wait=True)
             logging.info("Connected to chat room '%s'" % room)
@@ -67,7 +67,7 @@ class Creep():
             message_from = str(message.get_from())
             if '/' in message_from:
                 (location, resource) = message_from.split('/')
-                return (resource == self.conn.plugin['xep_0045'].ourNicks[location])
+                return (resource == self.xmpp.plugin['xep_0045'].ourNicks[location])
         return False
 
 
@@ -75,4 +75,4 @@ class Creep():
         for plugin in self.plugins:
             plugin.shutdown()
 
-        self.conn.disconnect(wait=True)
+        self.xmpp.disconnect(wait=True)
