@@ -22,21 +22,21 @@ class HttpJson(Plugin):
         server_address = ('', 8000)
         self.httpd = HTTPServer(server_address, Handler)
 
-        self.thread = Thread(target=self.run)
+        self.thread = Thread(target=self._run)
         self.thread.start()
 
         print "initialized http-json"
 
-    def run(self):
+    def _run(self):
         self.keep_running = True
         while self.keep_running:
             self.httpd.handle_request()
 
     def shutdown(self):
         self.keep_running = False
-        self.fire_dummy_request()
+        self._fire_dummy_request()
 
-    def fire_dummy_request(self):
+    def _fire_dummy_request(self):
         try:
             url = 'http://%s:%s' % (self.host, self.port)
             urllib2.urlopen(url, data='bubye now')
