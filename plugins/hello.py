@@ -28,12 +28,12 @@ class Hello(Plugin):
                 name = jid
 
             return ("%s %s, I'm creep. "
-                    "I like to sing and enjoy long walks on the beach"
+                    "I like to sing and enjoy long walks on the beach. "
                     "If you want to know more about me, just say 'help'"
                     % (greeting, name))
 
         return ("%s there! I'm creep. "
-                "I like to sing and enjoy long walks on the beach" 
+                "I like to sing and enjoy long walks on the beach. " 
                 "If you want to know more about me, just say 'help'" % greeting)
                 
 
