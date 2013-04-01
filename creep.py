@@ -28,7 +28,7 @@ class Creep():
         self.xmpp.add_event_handler("session_start", self.handle_connected)
         self.xmpp.add_event_handler('message', self.handle_message)
 
-        activated_plugins = ['quotes', 'http-json']
+        activated_plugins = ['quotes', 'http-json', 'dns-resolver']
         self.handlers = {}
         self.plugins = []
         self._load_plugins(activated_plugins, self.xmpp, config)
