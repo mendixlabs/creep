@@ -8,7 +8,6 @@ from plugins import Plugin
 TODO
  - catch exceptions on load_plugin
  - reload plugins
- - activated_plugins in config
 '''
 class Creep():
 
@@ -34,10 +33,10 @@ class Creep():
         self.xmpp.add_event_handler("session_start", self.handle_connected)
         self.xmpp.add_event_handler('message', self.handle_message)
 
-        activated_plugins = ['quotes', 'http-json', 'dns-resolver', 'help']
         self.handlers = {}
         self.plugins = []
-        self._load_plugins(activated_plugins, config)
+        if 'plugins' in config:
+            self._load_plugins(config['plugins'], config)
 
 
     def handle_connected(self, flap):
