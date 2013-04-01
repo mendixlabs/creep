@@ -68,7 +68,8 @@ class Creep():
             try:
                 result = handler(message=params, origin=origin)
                 return result
-            except:
+            except Exception as e:
+                logging.exception("Couldn't handle command '%s':" % command)
                 return "Sorry, I got into trouble"
         else:
             return 'Unknown command: \n%s' % body
