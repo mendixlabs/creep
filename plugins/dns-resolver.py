@@ -16,6 +16,10 @@ class DNSResolver(Plugin):
         pass
 
     def dns(self, message=None, origin=None):
+        '''
+        Query for a dns record
+        example: "dns mendix.com"
+        '''
         if re.match(host_regex, message) is None:
             return "'%s' doesn't seem to be a valid host" % message
         a_records = _resolve(message)

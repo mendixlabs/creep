@@ -8,6 +8,7 @@ from plugins import Plugin
 TODO
  - catch exceptions on load_plugin
  - reload plugins
+ - activated_plugins in config
 '''
 class Creep():
 
@@ -33,10 +34,10 @@ class Creep():
         self.xmpp.add_event_handler("session_start", self.handle_connected)
         self.xmpp.add_event_handler('message', self.handle_message)
 
-        activated_plugins = ['quotes', 'http-json', 'dns-resolver']
+        activated_plugins = ['quotes', 'http-json', 'dns-resolver', 'help']
         self.handlers = {}
         self.plugins = []
-        self._load_plugins(activated_plugins, self.xmpp, config)
+        self._load_plugins(activated_plugins, config)
 
 
     def handle_connected(self, flap):
@@ -72,7 +73,8 @@ class Creep():
                 logging.exception("Couldn't handle command '%s':" % command)
                 return "Sorry, I got into trouble"
         else:
-            return 'Unknown command: \n%s' % body
+            return ('Unknown command: \n%s\n'
+                   'run "help" for more info on available commands' % body)
 
     def from_us(self,message):
         if message.get_mucroom():
@@ -89,11 +91,11 @@ class Creep():
 
         self.xmpp.disconnect(wait=True)
 
-    def _load_plugins(self, names, xmpp, config):
+    def _load_plugins(self, names, config):
         for name in names:
-            self._load_plugin(name, xmpp, config)
+            self._load_plugin(name, config)
 
-    def _load_plugin(self, name, xmpp, config):
+    def _load_plugin(self, name, config):
         '''
         assumes there's only one class per plugin
         '''
@@ -103,7 +105,7 @@ class Creep():
         for attribute in dir(plugin):
             item = getattr(plugin, attribute)
             if inspect.isclass(item) and issubclass(item, Plugin) and not item == Plugin:
-                plugin_instance = item(xmpp, config=config)
+                plugin_instance = item(self, config=config)
                 for handler_name in item.provides:
                     if handler_name in self.handlers.keys():
                         raise Exception("Can't load '%s': handler already "

@@ -13,12 +13,12 @@ TODO
 '''
 class HttpJson(Plugin):
 
-    def __init__(self, xmpp, config=None):
+    def __init__(self, creep, config=None):
         kwargs = {'host' : config['http']['host'], 'port' : config['http']['port']}
         self.host = config['http']['host']
         self.port = config['http']['port']
         HttpJson.config = config
-        HttpJson.xmpp = xmpp
+        HttpJson.xmpp = creep.xmpp
         server_address = ('', 8000)
         self.httpd = HTTPServer(server_address, Handler)
 

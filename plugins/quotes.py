@@ -7,11 +7,15 @@ class Quotes(Plugin):
 
     provides = ['aq', 'iq', 'q', 'sq']
 
-    def __init__(self, xmpp, config=None):
+    def __init__(self, creep, config=None):
         self.__initialize_db()
         self.lock = Lock()
 
     def aq(self, message=None, origin=None):
+        '''
+        Add a quote
+        example: "aq this is my quote"
+        '''
         with self.lock:
             cursor = self.db.cursor()
             query = 'insert into quotes (content) values (?)'
@@ -23,6 +27,10 @@ class Quotes(Plugin):
             return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
+        '''
+        Query for a quote
+        example: "iq 123"
+        '''
         with self.lock:
             try:
                 quote_id = int(message)
@@ -40,6 +48,10 @@ class Quotes(Plugin):
                 return 'invalid quote_id: \'%s\'' % message
 
     def q(self, message=None, origin=None):
+        '''
+        Retrieve a random quote
+        example: "q"
+        '''
         with self.lock:
             cursor = self.db.cursor()
             query = 'select content from quotes order by random() limit 1;'
@@ -53,6 +65,10 @@ class Quotes(Plugin):
             return str(quote)
 
     def sq(self, message=None, origin=None):
+        '''
+        Search for a quote
+        example: "sq name"
+        '''
         with self.lock:
             cursor = self.db.cursor()
             query = 'select content from quotes where content like ?  \
