@@ -69,11 +69,11 @@ class Creep():
                 result = handler(message=params, origin=origin)
                 return result
             except Exception as e:
-                logging.exception("Couldn't handle command '%s':" % command)
+                logging.exception("Couldn't handle command '%s': " % command)
                 return "Sorry, I got into trouble"
         else:
-            return ('Unknown command: \n%s\n'
-                   'run "help" for more info on available commands' % body)
+            return ('Unknown command: \'%s\'. '
+                   'Run "help" for more info on available commands.' % body)
 
     def from_us(self,message):
         if message.get_mucroom():

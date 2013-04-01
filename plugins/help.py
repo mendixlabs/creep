@@ -18,7 +18,7 @@ class Help(Plugin):
             return self._get_command_doc(message)
 
     def _get_available_commands(self):
-        return ("Welcome to creep!\nType 'help cmd' for more info\n"
+        return ("Welcome to creep! Type 'help cmd' for more info\n"
                 "Available commands: [%s] " % 
                 ', '.join(self.creep.handlers.keys()))
 
