@@ -86,4 +86,4 @@ class Quotes(Plugin):
             self.db.close()
 
     def __str__(self):
-        return "Quotes plugin"
+        return 'quotes'

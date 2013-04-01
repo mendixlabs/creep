@@ -103,6 +103,7 @@ class Creep():
                     self.handlers[handler_name] = _get_handler(handler_name, plugin_instance)
 
                 self.plugins.append(plugin_instance)
+                logging.info("Finished loading '%s' plugin" % plugin_instance)
 
 def _get_handler(handler_name, plugin_instance):
     if not hasattr(plugin_instance, handler_name):

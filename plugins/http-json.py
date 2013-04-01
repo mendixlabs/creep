@@ -25,8 +25,6 @@ class HttpJson(Plugin):
         self.thread = Thread(target=self._run)
         self.thread.start()
 
-        print "initialized http-json"
-
     def _run(self):
         self.keep_running = True
         while self.keep_running:
@@ -43,6 +41,9 @@ class HttpJson(Plugin):
         except:
             # we might already have shutdown due to other request
             pass
+
+    def __str__(self):
+        return 'http-json'
 
 class Handler(BaseHTTPRequestHandler):
 
