@@ -6,7 +6,8 @@ from plugins import Plugin
 
 '''
 TODO
- - reload plugins
+ - reload plugins on-the-fly
+ - README
 '''
 class Creep():
 
