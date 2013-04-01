@@ -6,7 +6,6 @@ from plugins import Plugin
 
 '''
 TODO
- - catch exceptions on load_plugin
  - reload plugins
 '''
 class Creep():
@@ -92,7 +91,10 @@ class Creep():
 
     def _load_plugins(self, names, config):
         for name in names:
-            self._load_plugin(name, config)
+            try:
+                self._load_plugin(name, config)
+            except Exception:
+                logging.exception("Couldn't load plugin '%s':" % name)
 
     def _load_plugin(self, name, config):
         '''
