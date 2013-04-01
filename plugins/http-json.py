@@ -9,7 +9,6 @@ from plugin import Plugin
 '''
 TODO
  - move config to instance variable (static bad)
- - neater way of firing 'last' request
 '''
 class HttpJson(Plugin):
 
@@ -37,13 +36,14 @@ class HttpJson(Plugin):
     def _fire_dummy_request(self):
         try:
             url = 'http://%s:%s' % (self.host, self.port)
-            urllib2.urlopen(url, data='bubye now')
+            urllib2.urlopen(url, data='bubye now', timeout=5)
         except:
             # we might already have shutdown due to other request
             pass
 
     def __str__(self):
         return 'http-json'
+
 
 class Handler(BaseHTTPRequestHandler):
 
