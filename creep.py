@@ -4,6 +4,11 @@ import os, sys, inspect
 import yaml
 from plugins import Plugin
 
+'''
+TODO
+ - catch exceptions on load_plugin
+ - reload plugins
+'''
 class Creep():
 
     def __init__(self, config):
@@ -47,7 +52,7 @@ class Creep():
         body = message['body']
         if not self.from_us(message):
             if not message.get_mucroom():
-                reply = __handle_message(body, message.get_from())
+                reply = self.__handle_message(body, message.get_from())
                 message.reply(reply).send()
             elif message.get_mucroom() and body.startswith('!'):
                 reply = self.__handle_message(body[1:], message.get_from())
