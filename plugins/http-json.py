@@ -1,5 +1,5 @@
 from threading import Thread
-import xmlrpclib
+import urllib2
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import cgi
 from base64 import decodestring
@@ -38,10 +38,10 @@ class HttpJson(Plugin):
 
     def fire_dummy_request(self):
         try:
-            server = xmlrpclib.Server('http://%s:%s' % 
-                                      (self.host, self.port))
-            server.ping()
+            url = 'http://%s:%s' % (self.host, self.port)
+            urllib2.urlopen(url, data='bubye now')
         except:
+            # we might already have shutdown due to other request
             pass
 
 class Handler(BaseHTTPRequestHandler):
