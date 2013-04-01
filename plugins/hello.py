@@ -8,15 +8,11 @@ class Hello(Plugin):
         pass
 
     def hello(self, message=None, origin=None):
-        '''
-        Hello world
-        '''
+        '''Hello world'''
         return self._greet('Hello', origin)
         
     def hi(self, message=None, origin=None):
-        '''
-        Hi world
-        '''
+        '''Hi world'''
         return self._greet('Hi', origin)
 
     def _greet(self, greeting, origin=None):

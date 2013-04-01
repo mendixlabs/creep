@@ -8,10 +8,7 @@ class Help(Plugin):
         self.creep = creep
 
     def help(self, message=None, origin=None):
-        '''
-        Returns help on creep & plugin usage
-        example: "help aq"
-        '''
+        '''Returns help on creep & plugin usage. For example: "help aq"'''
         if message is None:
             return self._get_available_commands()
         else:

@@ -9,9 +9,7 @@ class Sing(Plugin):
         pass
 
     def sing(self, message=None, origin=None):
-        '''
-        I'm a creep
-        '''
+        '''I'm a creep'''
         return lines[int(random()*len(lines))]
         
     def __str__(self):
