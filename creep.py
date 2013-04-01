@@ -65,8 +65,11 @@ class Creep():
         params = body[body.find(" ")+1:] if ' ' in body else None
         if command in self.handlers:
             handler = self.handlers[command]
-            result = handler(message=params, origin=origin)
-            return result
+            try:
+                result = handler(message=params, origin=origin)
+                return result
+            except:
+                return "Sorry, I got into trouble"
         else:
             return 'Unknown command: \n%s' % body
 
