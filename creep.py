@@ -1,6 +1,8 @@
 import sleekxmpp
 import logging
-from plugins import load_plugins 
+import os, sys, inspect
+import yaml
+from plugins import Plugin
 
 class Creep():
 
@@ -27,8 +29,9 @@ class Creep():
         self.xmpp.add_event_handler('message', self.handle_message)
 
         activated_plugins = ['quotes', 'http-json']
-        (plugins, handlers) = load_plugins(activated_plugins, self.xmpp, config)
-        self.plugins = plugins
+        self.handlers = {}
+        self.plugins = []
+        self._load_plugins(activated_plugins, self.xmpp, config)
 
 
     def handle_connected(self, flap):
@@ -47,7 +50,7 @@ class Creep():
                 reply = __handle_message(body, message.get_from())
                 message.reply(reply).send()
             elif message.get_mucroom() and body.startswith('!'):
-                reply = __handle_message(body[1:], message.get_from())
+                reply = self.__handle_message(body[1:], message.get_from())
                 message.reply(reply).send()
 
         logging.debug('Handled request "%s"' % body)
@@ -55,8 +58,8 @@ class Creep():
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
         params = body[body.find(" ")+1:] if ' ' in body else None
-        if command in handlers:
-            handler = handlers[command]
+        if command in self.handlers:
+            handler = self.handlers[command]
             result = handler(message=params, origin=origin)
             return result
         else:
@@ -76,3 +79,35 @@ class Creep():
             plugin.shutdown()
 
         self.xmpp.disconnect(wait=True)
+
+    def _load_plugins(self, names, xmpp, config):
+        for name in names:
+            self._load_plugin(name, xmpp, config)
+
+    def _load_plugin(self, name, xmpp, config):
+        '''
+        assumes there's only one class per plugin
+        '''
+        handlers = {}
+        plugin = __import__('plugins.%s' % name, fromlist=['plugins',])
+        plugin_instance = None
+        for attribute in dir(plugin):
+            item = getattr(plugin, attribute)
+            if inspect.isclass(item) and issubclass(item, Plugin) and not item == Plugin:
+                plugin_instance = item(xmpp, config=config)
+                for handler_name in item.provides:
+                    if handler_name in self.handlers.keys():
+                        raise Exception("Can't load '%s': handler already "
+                                        "registered for '%s'" % (name, handler_name))
+
+                    self.handlers[handler_name] = _get_handler(handler_name, plugin_instance)
+
+                self.plugins.append(plugin_instance)
+
+def _get_handler(handler_name, plugin_instance):
+    if not hasattr(plugin_instance, handler_name):
+        raise Exception("Plugin '%s' doesn't provide '%s'" 
+                % (plugin_instance, handler_name))
+    logging.info("Registered '%s' as a handler for '%s'" % 
+            (plugin_instance, handler_name))
+    return getattr(plugin_instance, handler_name)

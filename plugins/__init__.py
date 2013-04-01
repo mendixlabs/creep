@@ -1,1 +1,1 @@
-from plugin import Plugin, load_plugins
+from plugin import Plugin
