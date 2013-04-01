@@ -60,7 +60,7 @@ class Quotes(Plugin):
         with self.lock:
             cursor = self.db.cursor()
             query = 'select content from quotes where content like ?  \
-                    limit 3'
+                    order by random() limit 3'
             result = cursor.execute(query, ['%%%s%%' % message]).fetchall()
             if len(result) == 0:
                 return 'no quotes found'
