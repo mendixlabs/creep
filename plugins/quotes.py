@@ -64,7 +64,7 @@ class Quotes(Plugin):
             result = cursor.execute(query, ['%%%s%%' % message]).fetchall()
             if len(result) == 0:
                 return 'no quotes found'
-            result = map(lambda x: x[0], result)
+            result = map(lambda x: x[0].strip(), result)
             quote = '\n'.join(result)
             cursor.close()
             self.db.commit()
