@@ -2,8 +2,8 @@
 
 configs="/etc/creep.cfg /usr/local/etc/creep.cfg creep.cfg"
 
-url="https://creep.example.com"
-secret="floep"
+url="http://localhost:8000"
+secret="YmxhYXQK" # matches 'blaat', default secret from creep.yaml.example
 
 for i in $configs; do
     [ -f "$i" ] && config="$i"
