@@ -1,0 +1,4 @@
+quote plugin
+mass message plugin
+register ppl plugin
+

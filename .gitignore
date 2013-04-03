@@ -3,3 +3,5 @@
 venv
 creep.cfg
 creep.yaml
+creep.db
+quotes.db
