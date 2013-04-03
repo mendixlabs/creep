@@ -4,6 +4,7 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import cgi
 from base64 import decodestring
 from plugin import Plugin
+import json
 
 
 '''
@@ -52,7 +53,7 @@ class Handler(BaseHTTPRequestHandler):
 
         if 'secret' in HttpJson.config['http']:
             if 'Creep-Authentication' in self.headers:
-                provided_secret = decodestring(request.headers['Creep-Authentication']).rstrip()
+                provided_secret = decodestring(self.headers['Creep-Authentication']).rstrip()
                 if isinstance(HttpJson.config['http']['secret'], list):
                     if not provided_secret in HttpJson.config['http']['secret']:
                         self.return_forbidden()
@@ -68,8 +69,9 @@ class Handler(BaseHTTPRequestHandler):
         request_content = self.rfile.read(length)
 
         if ctype == 'application/json':
-            msg = request.json['message']
-            room = request.json['room']
+            json_request = json.loads(request_content)
+            msg = json_request['message']
+            room = json_request['room']
         else:
             msg = request_content
             room = HttpJson.config['xmpp']['default_room']
