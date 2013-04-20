@@ -28,7 +28,7 @@ At the very least, jid, password & default room configured (you can use your gma
 
 Running:
 
-    venv/bin/python app.py
+    venv/bin/python creep #from parent directory
 
 To test you can edit & run:
 
