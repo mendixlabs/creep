@@ -14,7 +14,7 @@ install:
 	dh_clean -k
 	dh_installdirs
 
-	install -m 644 -D examples/usr/local/etc/creep.cfg.example debian/creep-client/usr/local/etc/creep.cfg
+	install -m 644 -D examples/usr/local/etc/creep.cfg.example debian/creep-client/usr/share/doc/creep-client/creep.cfg.example
 	install -m 755 -D examples/usr/local/bin/creep.sh debian/creep-client/usr/local/bin/creep.sh
 	install -m 755 -D examples/usr/local/bin/creep_compose.py debian/creep-client/usr/local/bin/creep_compose.py
 	install -m 755 -D examples/usr/local/bin/creep_json.sh debian/creep-client/usr/local/bin/creep_json.sh
