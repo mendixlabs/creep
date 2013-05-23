@@ -5,7 +5,7 @@ from threading import Lock
 
 class Quotes(Plugin):
 
-    provides = ['aq', 'iq', 'q', 'sq']
+    provides = ['aq', 'iq', 'q', 'sq', 'lq']
 
     def __init__(self, creep, config=None):
         self.__initialize_db()
@@ -50,6 +50,21 @@ class Quotes(Plugin):
             if result is None:
                 return 'no quotes found'
             quote = result[0]
+            cursor.close()
+            self.db.commit()
+
+            return str(quote)
+
+    def lq(self, message=None, origin=None):
+        '''Search for a quote. For example: "sq name"'''
+        with self.lock:
+            cursor = self.db.cursor()
+            query = 'select id, content from quotes order by id desc limit 10'
+            result = cursor.execute(query).fetchall()
+            if len(result) == 0:
+                return 'no quotes found'
+            result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
+            quote = '\n'.join(result)
             cursor.close()
             self.db.commit()
 
