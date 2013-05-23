@@ -73,7 +73,7 @@ class Creep():
                 logging.exception("Couldn't handle command '%s': " % command)
                 return "Sorry, I got into trouble"
         else:
-            return ('Unknown command: \'%s\'. '
+            return ("Unknown command: '%s'. "
                     'Run "help" for more info on available commands.' % body)
 
     def from_us(self, message):
