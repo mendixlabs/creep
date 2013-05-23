@@ -1,5 +1,6 @@
 from plugin import Plugin
 
+
 class Help(Plugin):
 
     provides = ['help']
@@ -16,7 +17,7 @@ class Help(Plugin):
 
     def _get_available_commands(self):
         return ("Welcome to creep! Type 'help cmd' for more info\n"
-                "Available commands: [%s] " % 
+                "Available commands: [%s] " %
                 ', '.join(self.creep.handlers.keys()))
 
     def _get_command_doc(self, name):

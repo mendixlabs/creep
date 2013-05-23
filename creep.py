@@ -1,7 +1,6 @@
 import sleekxmpp
 import logging
-import os, sys, inspect
-import yaml
+import inspect
 from plugins import Plugin
 
 '''
@@ -9,6 +8,8 @@ TODO
  - reload plugins on-the-fly
  - README
 '''
+
+
 class Creep():
 
     def __init__(self, config):
@@ -23,7 +24,8 @@ class Creep():
 
         logging.info("Connecting %s" % config['xmpp']['jid'])
         if 'server' in config['xmpp'] and 'port' in config['xmpp']:
-            self.xmpp.connect((config['xmpp']['server'], config['xmpp']['port']))
+            self.xmpp.connect((config['xmpp']['server'],
+                               config['xmpp']['port']))
         else:
             self.xmpp.connect()
         logging.info("Connected")
@@ -38,14 +40,13 @@ class Creep():
         if 'plugins' in config:
             self._load_plugins(config['plugins'], config)
 
-
     def handle_connected(self, flap):
         self.xmpp.send_presence()
         logging.info("Started processing")
-        for room in self.config['xmpp'].get('autojoin',[]):
+        for room in self.config['xmpp'].get('autojoin', []):
             self.xmpp.plugin['xep_0045'].joinMUC(room,
-                'creep',
-                wait=True)
+                                                 'creep',
+                                                 wait=True)
             logging.info("Connected to chat room '%s'" % room)
 
     def handle_message(self, message):
@@ -59,7 +60,7 @@ class Creep():
                 message.reply(reply).send()
 
         logging.debug('Handled request "%s"' % body)
-        
+
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
         params = body[body.find(" ")+1:] if ' ' in body else None
@@ -68,21 +69,21 @@ class Creep():
             try:
                 result = handler(message=params, origin=origin)
                 return result
-            except Exception as e:
+            except Exception:
                 logging.exception("Couldn't handle command '%s': " % command)
                 return "Sorry, I got into trouble"
         else:
             return ('Unknown command: \'%s\'. '
-                   'Run "help" for more info on available commands.' % body)
+                    'Run "help" for more info on available commands.' % body)
 
-    def from_us(self,message):
+    def from_us(self, message):
         if message.get_mucroom():
             message_from = str(message.get_from())
             if '/' in message_from:
                 (location, resource) = message_from.split('/')
-                return (resource == self.xmpp.plugin['xep_0045'].ourNicks[location])
+                return (resource ==
+                        self.xmpp.plugin['xep_0045'].ourNicks[location])
         return False
-
 
     def shutdown(self):
         for plugin in self.plugins:
@@ -101,27 +102,31 @@ class Creep():
         '''
         assumes there's only one class per plugin
         '''
-        handlers = {}
-        plugin = __import__('plugins.%s' % name, fromlist=['plugins',])
+        plugin = __import__('plugins.%s' % name, fromlist=['plugins', ])
         plugin_instance = None
         for attribute in dir(plugin):
             item = getattr(plugin, attribute)
-            if inspect.isclass(item) and issubclass(item, Plugin) and not item == Plugin:
+            if (inspect.isclass(item) and
+                    issubclass(item, Plugin) and
+                    not item == Plugin):
                 plugin_instance = item(self, config=config)
                 for handler_name in item.provides:
                     if handler_name in self.handlers.keys():
                         raise Exception("Can't load '%s': handler already "
-                                        "registered for '%s'" % (name, handler_name))
+                                        "registered for '%s'" % (name,
+                                                                 handler_name))
 
-                    self.handlers[handler_name] = _get_handler(handler_name, plugin_instance)
+                    self.handlers[handler_name] = _get_handler(handler_name,
+                                                               plugin_instance)
 
                 self.plugins.append(plugin_instance)
                 logging.info("Finished loading '%s' plugin" % plugin_instance)
 
+
 def _get_handler(handler_name, plugin_instance):
     if not hasattr(plugin_instance, handler_name):
-        raise Exception("Plugin '%s' doesn't provide '%s'" 
-                % (plugin_instance, handler_name))
-    logging.info("Registered '%s' as a handler for '%s'" % 
-            (plugin_instance, handler_name))
+        raise Exception("Plugin '%s' doesn't provide '%s'"
+                        % (plugin_instance, handler_name))
+    logging.info("Registered '%s' as a handler for '%s'" %
+                 (plugin_instance, handler_name))
     return getattr(plugin_instance, handler_name)

@@ -1,7 +1,7 @@
 from plugin import Plugin
 import sqlite3
-import re
 from threading import Lock
+
 
 class Quotes(Plugin):
 
@@ -72,7 +72,7 @@ class Quotes(Plugin):
             return str(quote)
 
     def __initialize_db(self):
-        db = sqlite3.connect('quotes.db', check_same_thread = False)
+        db = sqlite3.connect('quotes.db', check_same_thread=False)
         cursor = db.cursor()
         query = 'SELECT name FROM sqlite_master  \
             WHERE type=\'table\' \
@@ -84,7 +84,7 @@ class Quotes(Plugin):
         cursor.close()
         db.commit()
         self.db = db
-    
+
     def shutdown(self):
         with self.lock:
             self.db.close()

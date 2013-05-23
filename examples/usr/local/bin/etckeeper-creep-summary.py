@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys,os
+import sys
 
 installed = set()
 removed = set()
@@ -49,7 +49,7 @@ if removed_libs:
     output_libs.append("-%d" % len(removed_libs))
 if changed_libs:
     output_libs.append("~%d" % len(changed_libs))
-   
+
 if output_libs:
     output.append("libs: %s" % ''.join(output_libs))
 

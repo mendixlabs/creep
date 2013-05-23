@@ -11,10 +11,11 @@ import json
 TODO
  - move config to instance variable (static bad)
 '''
+
+
 class HttpJson(Plugin):
 
     def __init__(self, creep, config=None):
-        kwargs = {'host' : config['http']['host'], 'port' : config['http']['port']}
         self.host = config['http']['host']
         self.port = config['http']['port']
         HttpJson.config = config
@@ -53,9 +54,12 @@ class Handler(BaseHTTPRequestHandler):
 
         if 'secret' in HttpJson.config['http']:
             if 'Creep-Authentication' in self.headers:
-                provided_secret = decodestring(self.headers['Creep-Authentication']).rstrip()
+                provided_secret = decodestring(
+                    self.headers['Creep-Authentication']
+                ).rstrip()
                 if isinstance(HttpJson.config['http']['secret'], list):
-                    if not provided_secret in HttpJson.config['http']['secret']:
+                    if (not provided_secret
+                            in HttpJson.config['http']['secret']):
                         self.return_forbidden()
                         return
                 elif provided_secret != HttpJson.config['http']['secret']:
@@ -76,7 +80,9 @@ class Handler(BaseHTTPRequestHandler):
             msg = request_content
             room = HttpJson.config['xmpp']['default_room']
 
-        HttpJson.xmpp.send_message(mto=room, mbody="%s" % msg, mtype='groupchat')
+        HttpJson.xmpp.send_message(mto=room,
+                                   mbody="%s" % msg,
+                                   mtype='groupchat')
         self.send_response(200)
         self.end_headers()
         self.wfile.write('ok')
@@ -87,4 +93,3 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('forbidden')
         self.wfile.close()
-

@@ -39,6 +39,6 @@ def _resolve(hostname, record_type='A'):
         return ['%s resolves to %s' % (hostname, answer) for answer in answers]
     except NoAnswer:
         return []
-    except Exception as e:
+    except Exception:
         trace = sys.exc_info()[2]
         raise Exception("Could not resolve host '%s'" % hostname), None, trace
