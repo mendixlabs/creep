@@ -59,12 +59,12 @@ class Quotes(Plugin):
         '''Search for a quote. For example: "sq name"'''
         with self.lock:
             cursor = self.db.cursor()
-            query = 'select content from quotes where content like ?  \
+            query = 'select id, content from quotes where content like ?  \
                     order by random() limit 3'
             result = cursor.execute(query, ['%%%s%%' % message]).fetchall()
             if len(result) == 0:
                 return 'no quotes found'
-            result = map(lambda x: x[0].strip(), result)
+            result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
             quote = '\n'.join(result)
             cursor.close()
             self.db.commit()
