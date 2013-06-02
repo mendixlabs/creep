@@ -56,7 +56,7 @@ class Quotes(Plugin):
             return str(quote)
 
     def lq(self, message=None, origin=None):
-        '''Search for a quote. For example: "sq name"'''
+        '''List the last 10 quotes'''
         with self.lock:
             cursor = self.db.cursor()
             query = 'select id, content from quotes order by id desc limit 10'
