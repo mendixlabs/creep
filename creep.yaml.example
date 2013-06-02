@@ -24,3 +24,4 @@ http:
  #]
 
 admins: ['admin@example.com']
+plugins: ['quotes', 'http-json', 'dns-resolver', 'help', 'sing', 'hello']
