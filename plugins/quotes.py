@@ -5,11 +5,15 @@ from threading import Lock
 
 class Quotes(Plugin):
 
-    provides = ['aq', 'iq', 'q', 'sq', 'lq']
+    provides = ['aq', 'iq', 'q', 'sq', 'lq', 'dq']
 
     def __init__(self, creep, config=None):
         self.__initialize_db()
         self.lock = Lock()
+        if 'admins' in config:
+            self.admins = config['admins']
+        else:
+            self.admins = []
 
     def aq(self, message=None, origin=None):
         '''Add a quote. For example: "aq this is my quote"'''
@@ -85,6 +89,32 @@ class Quotes(Plugin):
             self.db.commit()
 
             return str(quote)
+
+    def dq(self, message=None, origin=None):
+        '''Delete a quote. Only available for admins'''
+        origin_bare = str(origin).split('/')[0]
+        if origin_bare not in self.admins:
+            return "You're not an admin"
+
+        with self.lock:
+            try:
+                quote_id = int(message)
+                cursor = self.db.cursor()
+
+                query = 'select content from quotes where id=?'
+                result = cursor.execute(query, [quote_id]).fetchone()
+                if result is None:
+                    return 'quote not found'
+
+                query = 'delete from quotes where id=?'
+                cursor.execute(query, [quote_id])
+                cursor.close()
+                self.db.commit()
+
+                return "'%s' deleted" % quote_id
+            except ValueError:
+                return 'invalid quote_id: \'%s\'' % message
+                result = cursor.execute(query, [quote_id]).fetchone()
 
     def __initialize_db(self):
         db = sqlite3.connect('quotes.db', check_same_thread=False)
