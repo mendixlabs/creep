@@ -55,7 +55,6 @@ class Quotes(Plugin):
                 return 'no quotes found'
             quote = result[0]
             cursor.close()
-            self.db.commit()
 
             return str(quote)
 
@@ -70,7 +69,6 @@ class Quotes(Plugin):
             result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
             quote = '\n'.join(result)
             cursor.close()
-            self.db.commit()
 
             return str(quote)
 
