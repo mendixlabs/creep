@@ -52,11 +52,12 @@ class Quotes(Plugin):
             query = 'select content from quotes order by random() limit 1;'
             result = cursor.execute(query).fetchone()
             if result is None:
-                return 'no quotes found'
-            quote = result[0]
+                text = 'no quotes found'
+            else:
+                text = result[0]
             cursor.close()
 
-            return str(quote)
+            return str(text)
 
     def lq(self, message=None, origin=None):
         '''List the last 10 quotes, optionally from offset'''
@@ -65,12 +66,15 @@ class Quotes(Plugin):
             offset = int(message) if message else None
             result = self.__get_quotes(cursor, offset)
             if len(result) == 0:
-                return 'no quotes found'
-            result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
-            quote = '\n'.join(result)
+                text = 'no quotes found'
+            else:
+                text = '\n'.join(map(
+                    lambda x: "%d - %s" % (x[0], x[1].strip()),
+                    result
+                ))
             cursor.close()
 
-            return str(quote)
+            return str(text)
 
     def sq(self, message=None, origin=None):
         '''Search for a quote. For example: "sq name"'''
@@ -80,13 +84,16 @@ class Quotes(Plugin):
                     order by random() limit 3'
             result = cursor.execute(query, ['%%%s%%' % message]).fetchall()
             if len(result) == 0:
-                return 'no quotes found'
-            result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
-            quote = '\n'.join(result)
+                text = 'no quotes found'
+            else:
+                text = '\n'.join(map(
+                    lambda x: "%d - %s" % (x[0], x[1].strip()),
+                    result
+                ))
             cursor.close()
             self.db.commit()
 
-            return str(quote)
+            return str(text)
 
     def dq(self, message=None, origin=None):
         '''Delete a quote. Only available for admins'''
