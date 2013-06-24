@@ -59,11 +59,11 @@ class Quotes(Plugin):
             return str(quote)
 
     def lq(self, message=None, origin=None):
-        '''List the last 10 quotes'''
+        '''List the last 10 quotes, optionally from offset'''
         with self.lock:
             cursor = self.db.cursor()
-            query = 'select id, content from quotes order by id desc limit 10'
-            result = cursor.execute(query).fetchall()
+            offset = int(message) if message else None
+            result = self.__get_quotes(cursor, offset)
             if len(result) == 0:
                 return 'no quotes found'
             result = map(lambda x: "%d - %s" % (x[0], x[1].strip()), result)
@@ -127,6 +127,14 @@ class Quotes(Plugin):
         cursor.close()
         db.commit()
         self.db = db
+
+    def __get_quotes(self, cursor, offset=None):
+        query = 'select id, content from quotes %s order by id desc limit 10'
+        if offset is None:
+            return cursor.execute(query % '').fetchall()
+        else:
+            q = query % 'where id <= ?'
+            return cursor.execute(q, [int(offset)]).fetchall()
 
     def shutdown(self):
         with self.lock:
