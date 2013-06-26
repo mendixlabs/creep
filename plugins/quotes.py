@@ -69,7 +69,7 @@ class Quotes(Plugin):
                 text = 'no quotes found'
             else:
                 text = '\n'.join(map(
-                    lambda x: "%d - %s" % (x[0], x[1].strip()),
+                    lambda x: "%d - %s" % (x[0], x[1].strip() if x[1] else ''),
                     result
                 ))
             cursor.close()
