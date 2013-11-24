@@ -68,32 +68,29 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 
+        authenticated = False
         if HttpJson.secret:
             if 'Creep-Authentication' in self.headers:
-                provided_secret = decodestring(
-                    self.headers['Creep-Authentication']
-                ).rstrip()
+                auth_token = self.headers['Creep-Authentication']
+                provided_secret = decodestring(auth_token).rstrip()
+
                 if isinstance(HttpJson.secret, list):
-                    if (not provided_secret
-                            in HttpJson.config['http']['secret']):
-                        self.return_forbidden()
-                        return
-                elif provided_secret != HttpJson.secret:
-                    self.return_forbidden()
-                    return
-            else:
-                self.return_forbidden()
-                return
+                    authenticated = provided_secret in HttpJson.secret
+                elif provided_secret == HttpJson.secret:
+                    authenticated = True
 
-        length = int(self.headers['content-length'])
-        request_content = self.rfile.read(length)
+        if authenticated:
+            length = int(self.headers['content-length'])
+            request_content = self.rfile.read(length)
 
-        HttpJson.creep_plugin.broadcast_message(request_content, ctype)
+            HttpJson.creep_plugin.broadcast_message(request_content, ctype)
 
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write('ok')
-        self.wfile.close()
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write('ok')
+            self.wfile.close()
+        else:
+            self.return_forbidden()
 
     def return_forbidden(self):
         self.send_response(403)
