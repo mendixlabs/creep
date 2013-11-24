@@ -24,8 +24,9 @@ class Mute(Plugin):
 
     def unmute(self, message=None, origin=None):
         '''Unmute me'''
-        self.creep.unmute()
-        return "I'm back baby!"
+        room, _ = str(origin).split('/')
+        self.creep.unmute(room)
+        return None
 
     def __str__(self):
         return 'mute'

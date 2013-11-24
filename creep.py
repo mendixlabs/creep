@@ -71,10 +71,11 @@ class Creep():
         Timer(timeout, unmute_room).start()
 
     def unmute(self, room):
-        self.muted_rooms.remove(room)
-        self.xmpp.send_message(mto=room,
-                               mbody="I'm back baby!",
-                               mtype='groupchat')
+        if room in self.muted_rooms:
+            self.muted_rooms.remove(room)
+            self.xmpp.send_message(mto=room,
+                                   mbody="I'm back baby!",
+                                   mtype='groupchat')
 
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
