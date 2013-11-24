@@ -3,10 +3,11 @@ from plugin import Plugin
 
 class Mute(Plugin):
 
-    provides = ['mute', 'unmute']
+    provides = ['mute', 'unmute', 'shutup']
 
     def __init__(self, creep, config=None):
         self.creep = creep
+        self.shutup = self.mute
 
     def mute(self, message=None, origin=None):
         '''Mute me in this room for a while'''
