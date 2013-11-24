@@ -7,12 +7,6 @@ from plugin import Plugin
 import json
 
 
-'''
-TODO
- - move config to instance variable (static bad)
-'''
-
-
 class HttpJson(Plugin):
 
     def __init__(self, creep, config=None):
@@ -20,10 +14,13 @@ class HttpJson(Plugin):
         self.port = config['http']['port']
         self.default_room = config['xmpp']['default_room']
         self.creep = creep
-        HttpJson.creep_plugin = self
-        HttpJson.secret = config['http']['secret']
         server_address = ('', 8000)
-        self.httpd = HTTPServer(server_address, Handler)
+        secret = config['http']['secret'] if 'secret' in config['http'] else None
+
+        def get_handler(request, client_address, httpserver):
+            return Handler(request, client_address, httpserver, secret=secret, creep_plugin=self)
+
+        self.httpd = HTTPServer(server_address, get_handler)
 
         self.thread = Thread(target=self._run)
         self.thread.start()
@@ -65,25 +62,30 @@ class HttpJson(Plugin):
 
 class Handler(BaseHTTPRequestHandler):
 
+    def __init__(self, request, client_address, httpserver, secret, creep_plugin):
+        self.secret = secret
+        self.creep_plugin = creep_plugin
+        BaseHTTPRequestHandler.__init__(self, request, client_address, httpserver)
+
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 
         authenticated = False
-        if HttpJson.secret:
+        if self.secret:
             if 'Creep-Authentication' in self.headers:
                 auth_token = self.headers['Creep-Authentication']
                 provided_secret = decodestring(auth_token).rstrip()
 
-                if isinstance(HttpJson.secret, list):
-                    authenticated = provided_secret in HttpJson.secret
-                elif provided_secret == HttpJson.secret:
+                if isinstance(self.secret, list):
+                    authenticated = provided_secret in self.secret
+                elif provided_secret == self.secret:
                     authenticated = True
 
         if authenticated:
             length = int(self.headers['content-length'])
             request_content = self.rfile.read(length)
 
-            HttpJson.creep_plugin.broadcast_message(request_content, ctype)
+            self.creep_plugin.broadcast_message(request_content, ctype)
 
             self.send_response(200)
             self.end_headers()
