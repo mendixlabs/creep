@@ -18,8 +18,10 @@ class HttpJson(Plugin):
     def __init__(self, creep, config=None):
         self.host = config['http']['host']
         self.port = config['http']['port']
-        HttpJson.config = config
-        HttpJson.xmpp = creep.xmpp
+        self.default_room = config['xmpp']['default_room']
+        self.creep = creep
+        HttpJson.creep_plugin = self
+        HttpJson.secret = config['http']['secret']
         server_address = ('', 8000)
         self.httpd = HTTPServer(server_address, Handler)
 
@@ -34,6 +36,20 @@ class HttpJson(Plugin):
     def shutdown(self):
         self.keep_running = False
         self._fire_dummy_request()
+
+    def broadcast_message(self, content, content_type):
+        if content_type == 'application/json':
+            json_request = json.loads(content)
+            msg = json_request['message']
+            room = json_request['room']
+        else:
+            msg = content
+            room = self.default_room
+
+        if not room in self.creep.muted_rooms:
+            self.creep.xmpp.send_message(mto=room,
+                                   mbody="%s" % msg,
+                                   mtype='groupchat')
 
     def _fire_dummy_request(self):
         try:
@@ -52,17 +68,17 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 
-        if 'secret' in HttpJson.config['http']:
+        if HttpJson.secret:
             if 'Creep-Authentication' in self.headers:
                 provided_secret = decodestring(
                     self.headers['Creep-Authentication']
                 ).rstrip()
-                if isinstance(HttpJson.config['http']['secret'], list):
+                if isinstance(HttpJson.secret, list):
                     if (not provided_secret
                             in HttpJson.config['http']['secret']):
                         self.return_forbidden()
                         return
-                elif provided_secret != HttpJson.config['http']['secret']:
+                elif provided_secret != HttpJson.secret:
                     self.return_forbidden()
                     return
             else:
@@ -72,17 +88,8 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers['content-length'])
         request_content = self.rfile.read(length)
 
-        if ctype == 'application/json':
-            json_request = json.loads(request_content)
-            msg = json_request['message']
-            room = json_request['room']
-        else:
-            msg = request_content
-            room = HttpJson.config['xmpp']['default_room']
+        HttpJson.creep_plugin.broadcast_message(request_content, ctype)
 
-        HttpJson.xmpp.send_message(mto=room,
-                                   mbody="%s" % msg,
-                                   mtype='groupchat')
         self.send_response(200)
         self.end_headers()
         self.wfile.write('ok')
@@ -93,3 +100,4 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('forbidden')
         self.wfile.close()
+

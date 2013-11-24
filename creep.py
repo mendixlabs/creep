@@ -2,6 +2,7 @@ import sleekxmpp
 import logging
 import inspect
 from plugins import Plugin
+from threading import Timer
 
 '''
 TODO
@@ -15,6 +16,7 @@ class Creep():
     def __init__(self, config):
         logging.basicConfig(level=logging.INFO)
         self.config = config
+        self.muted_rooms = set()
         self.xmpp = sleekxmpp.ClientXMPP(
             '%s/%s' % (config['xmpp']['jid'], config['xmpp']['resource']),
             config['xmpp']['password']
@@ -60,6 +62,19 @@ class Creep():
                 message.reply(reply).send()
 
         logging.debug('Handled request "%s"' % body)
+
+    def mute(self, room, timeout=10):
+        def unmute_room():
+            self.unmute(room)
+
+        self.muted_rooms.add(room)
+        Timer(timeout, unmute_room).start()
+
+    def unmute(self, room):
+        self.muted_rooms.remove(room)
+        self.xmpp.send_message(mto=room,
+                               mbody="I'm back baby!",
+                               mtype='groupchat')
 
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
