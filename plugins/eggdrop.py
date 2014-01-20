@@ -20,7 +20,9 @@ class EggDrop(Plugin):
         Usage: kick <nick> <reason>
         reason is optional '''
         if len(message.split()) > 1:
-            (nick, reason) = message.split()
+            parts = message.split()
+            nick = parts[0]
+            reason = ' '.join(parts[1:])
         else:
             nick = message
             reason = 'Connection reset by peer'
