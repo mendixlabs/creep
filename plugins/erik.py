@@ -2,6 +2,7 @@ from threading import Thread
 import urllib2
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from plugin import Plugin
+import os
 
 
 class Erik(Plugin):
@@ -77,12 +78,12 @@ class Handler(BaseHTTPRequestHandler):
                     random_quote = plugin.q()
             self.wfile.write(
                 open(
-                    'templates/random_quote.html', 'r'
+                    'src/templates/random_quote.html', 'r'
                 ).read().format(text=random_quote)
             )
         else:
             try:
-                with open(self.path[1:], 'rb') as file_being_served:
+                with open(os.path.join('src', self.path[1:]), 'rb') as file_being_served:
                     self.send_response(200)
                     for ext, mime in mime_types.items():
                         if self.path.lower().endswith(ext):
