@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	
+	<title>Creep</title>
+	<link href='http://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css' href='templates/style.css' />
+	<script src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+	<script>
+		$(function() {{
+			function bla () {{
+				$("h1").removeClass('animate').load('/random', function () {{ $("h1").addClass('animate'); setTimeout(bla, 10000)}});
+			}}
+			bla();
+		}});
+	</script>
+</head>
+
+<body>
+
+    <div id="background"></div>
+    <div id="midground"></div>
+	<div id="foreground"></div>
+	<div id="title">Mendix Creep</div>
+	<div id="page-wrap" class="">
+		<h1 class="animate">{text}</h1>
+	</div>
+
+</body>
+
+</html>

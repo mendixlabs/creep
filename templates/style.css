@@ -1,0 +1,152 @@
+html { overflow-y: scroll; }
+
+body { 
+	font: 10px/2 "Lucida Grande", Helvetica, Sans-Serif;
+	color: #eee;
+}
+
+@-webkit-keyframes STAR-MOVE {
+	0% {
+		background-position: top center;
+	}
+	20% { 
+		background-position: right top;
+	}
+	40% { 
+		background-position: left bottom;
+	}
+	60% { 
+		background-position: right top;
+	}
+	100% { 
+		background-position: top center;
+	}
+}
+
+
+@-webkit-keyframes STAR-MOVE-TWEE {
+	from {
+		background-position: -1500px 500px ;
+	}
+	to { 
+		background-position: 500px -500px;
+	}
+}
+
+
+
+@-webkit-keyframes hue {
+  from {
+    -webkit-filter: hue-rotate(0deg);
+  }
+
+  to {
+    -webkit-filter: hue-rotate(360deg);
+  }
+}
+
+
+
+@-webkit-keyframes fadeIn {
+	0% {
+		-webkit-transform: scale(0);
+		opacity: 0.0;		
+	}
+	60% {
+		-webkit-transform: scale(1.1);
+	}
+	80% {
+		-webkit-transform: scale(0.9);
+		opacity: 1;	
+	}	
+	100% {
+		-webkit-transform: scale(1);
+		opacity: 1;	
+	}		
+}
+
+
+#background {
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 100;
+
+	background: -moz-linear-gradient(180deg,#295388,#4280cb ); /* FF3.6+ */
+	background: -webkit-linear-gradient(180deg,#295388,#4280cb ); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(180deg,#295388,#4280cb ); /* Opera 11.10+ */
+	background: -ms-linear-gradient(180deg,#295388,#4280cb ); /* IE10+ */
+	background: linear-gradient(180deg,#295388,#4280cb); /* W3C */
+
+	-webkit-animation: hue 60s infinite linear;
+	-animation: hue 60s infinite linear;
+}
+
+#midground {
+	background: url(images/grote-ballen.png) repeat;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 200;
+	opacity: 0.2;
+	
+	-webkit-animation-name: STAR-MOVE-TWEE;
+	-webkit-animation-duration: 30s;
+	-webkit-animation-timing-function: ease-in-out;;
+	-webkit-animation-iteration-count: infinite;
+}
+
+#foreground {
+	background: url(images/kleine-ballen.png) repeat 35% 35%;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 300;
+	opacity: 0.3;
+
+	-webkit-animation-name: STAR-MOVE;
+	-webkit-animation-duration: 60s;
+	-webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-iteration-count: infinite;
+}
+#page-wrap {
+	z-index: 300;
+	margin: auto;
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	height: 500px;
+	width: 60%;
+	text-align: center;
+}
+
+#title {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 400;
+	font-size: 14px;
+	color: #fff;
+	
+	z-index: 400;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 20px 30px;
+}
+
+h1 {
+	font-family: 'Raleway', sans-serif;
+	font-size: 70px;
+	font-weight: 100; 
+	margin: 0 0 10px 0;
+
+	line-height: 100px;
+	color: #FFF;
+}
+.animate {
+	animation-name: fadeIn;
+	-webkit-animation-name: fadeIn;	
+
+	animation-duration: 1.5s;	
+	-webkit-animation-duration: 1.5s;
+
+	animation-timing-function: ease-in-out;	
+	-webkit-animation-timing-function: ease-in-out;	
+}
