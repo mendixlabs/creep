@@ -6,12 +6,11 @@ import os
 import html
 
 
-class Erik(Plugin):
+class QuotesWebInterface(Plugin):
 
     def __init__(self, creep, config=None):
         self.host = config['http']['host']
         self.port = 13000
-        self.default_room = config['xmpp']['default_room']
         self.creep = creep
         server_address = ('', self.port)
 
@@ -42,7 +41,7 @@ class Erik(Plugin):
             pass
 
     def __str__(self):
-        return 'erik'
+        return 'quotes-web'
 
 
 class Handler(BaseHTTPRequestHandler):
