@@ -1,69 +1,64 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Creep</title>
+        <link href='https://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css'>
+        <link rel='stylesheet' type='text/css' href='templates/style.css'>
+        <script src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+        <script>
+            $(function() {{
+                    function bla () {{
+                            $("h1").removeClass('animate');
+                            $.get('/random', function(data) {{ $("h1").addClass('animate').text(data); setTimeout(bla, 10000) }} );
+                    }}
+                    bla();
+            }});
+        </script>
+    </head>
 
-<head>
-	<meta charset="utf-8">
-	
-	<title>Creep</title>
-	<link href='https://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css'>
-	<link rel='stylesheet' type='text/css' href='templates/style.css'>
-	<script src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
-	<script>
-		$(function() {{
-			function bla () {{
-				$("h1").removeClass('animate');
-				$.get('/random', function(data) {{ $("h1").addClass('animate').text(data); setTimeout(bla, 10000) }} );
-			}}
-			bla();
-		}});
-	</script>
-</head>
+    <body>
+        <div id="background"></div>
+        <div id="midground"></div>
+        <div id="foreground"></div>
+        <div id="title">Mendix Creep</div>
+        <div id="page-wrap" class="">
+            <h1 class="animate">{text}</h1>
+        </div>
 
-<body>
-
-    <div id="background"></div>
-    <div id="midground"></div>
-	<div id="foreground"></div>
-	<div id="title">Mendix Creep</div>
-	<div id="page-wrap" class="">
-		<h1 class="animate">{text}</h1>
-	</div>
-
-	<div id="nyanCat">
-        <div id="wholeHead">
-            <div class="skin ear"></div>
-            <div class="skin ear rightEar"></div>
-            <div id="mainHead" class="skin">
-                <div class="eye"></div>
-                <div class="eye rightEye"></div>
-                <div class="nose"></div>
-                <div class="chick"></div>
-                <div class="chick rightChick"></div>
-                <div class="mouth">E</div>
+        <div id="nyanCat">
+            <div id="wholeHead">
+                <div class="skin ear"></div>
+                <div class="skin ear rightEar"></div>
+                <div id="mainHead" class="skin">
+                    <div class="eye"></div>
+                    <div class="eye rightEye"></div>
+                    <div class="nose"></div>
+                    <div class="chick"></div>
+                    <div class="chick rightChick"></div>
+                    <div class="mouth">E</div>
+                </div>
             </div>
-        </div>
-        <div id="toastBody">
-            <div>
-                &nbsp;  &nbsp; &nbsp;.&nbsp;&nbsp;.&nbsp; &nbsp; &nbsp;..&nbsp;  &nbsp; &nbsp;.&nbsp;.&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;..&nbsp;  &nbsp; &nbsp;.&nbsp;&nbsp;.
+            <div id="toastBody">
+                <div>
+                    &nbsp;  &nbsp; &nbsp;.&nbsp;&nbsp;.&nbsp; &nbsp; &nbsp;..&nbsp;  &nbsp; &nbsp;.&nbsp;.&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;..&nbsp;  &nbsp; &nbsp;.&nbsp;&nbsp;.
+                </div>
             </div>
+            <div id="wholeTail">
+                <div class="tail skin"></div>
+                <div class="tail middleTail skin"></div>
+                <div class="tail backTail skin"></div>
+            </div>
+            <div id="allYourLegAreBelongToUs">
+                <div class="skin leg back leftBack"></div>
+                <div class="skin leg back"></div>
+                <div class="skin leg front leftFront"></div>
+                <div class="skin leg front"></div>
+            </div>
+            <div class="rainbow"></div>
+            <div class="rainbow r2"></div>
+            <div class="rainbow r3"></div>
+            <div class="rainbow r4"></div>
         </div>
-        <div id="wholeTail">
-            <div class="tail skin"></div>
-            <div class="tail middleTail skin"></div>
-            <div class="tail backTail skin"></div>
-        </div>
-        <div id="allYourLegAreBelongToUs">
-            <div class="skin leg back leftBack"></div>
-            <div class="skin leg back"></div>
-            <div class="skin leg front leftFront"></div>
-            <div class="skin leg front"></div>
-        </div>
-        <div class="rainbow"></div>
-        <div class="rainbow r2"></div>
-        <div class="rainbow r3"></div>
-        <div class="rainbow r4"></div>
-    </div>	
-
-</body>
-
+    </body>
 </html>
