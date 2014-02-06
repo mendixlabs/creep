@@ -64,6 +64,9 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == '/random':
             self.send_response(200)
             self.send_header("Content-type", "text")
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
             self.end_headers()
             for plugin in self.creep.plugins:
                 if str(plugin) == 'quotes':
