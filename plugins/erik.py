@@ -3,6 +3,7 @@ import urllib2
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from plugin import Plugin
 import os
+import html
 
 
 class Erik(Plugin):
@@ -79,7 +80,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(
                 open(
                     'src/templates/random_quote.html', 'r'
-                ).read().format(text=random_quote)
+                ).read().format(text=html.escape(random_quote))
             )
         else:
             try:
