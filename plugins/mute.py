@@ -12,7 +12,7 @@ class Mute(Plugin):
     def mute(self, message=None, origin=None):
         '''Mute me in this room for a while'''
         timeout = 60
-        if message != None:
+        if message is not None:
             try:
                 timeout = int(message)
             except:

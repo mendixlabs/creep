@@ -15,10 +15,13 @@ class HttpJson(Plugin):
         self.default_room = config['xmpp']['default_room']
         self.creep = creep
         server_address = ('', 8000)
-        secret = config['http']['secret'] if 'secret' in config['http'] else None
+        secret = (
+            config['http']['secret'] if 'secret' in config['http'] else None
+        )
 
         def get_handler(request, client_address, httpserver):
-            return Handler(request, client_address, httpserver, secret=secret, creep_plugin=self)
+            return Handler(request, client_address, httpserver, secret=secret,
+                           creep_plugin=self)
 
         self.httpd = HTTPServer(server_address, get_handler)
 
@@ -45,8 +48,8 @@ class HttpJson(Plugin):
 
         if not room in self.creep.muted_rooms:
             self.creep.xmpp.send_message(mto=room,
-                                   mbody="%s" % msg,
-                                   mtype='groupchat')
+                                         mbody="%s" % msg,
+                                         mtype='groupchat')
 
     def _fire_dummy_request(self):
         try:
@@ -62,10 +65,12 @@ class HttpJson(Plugin):
 
 class Handler(BaseHTTPRequestHandler):
 
-    def __init__(self, request, client_address, httpserver, secret, creep_plugin):
+    def __init__(self, request, client_address, httpserver, secret,
+                 creep_plugin):
         self.secret = secret
         self.creep_plugin = creep_plugin
-        BaseHTTPRequestHandler.__init__(self, request, client_address, httpserver)
+        BaseHTTPRequestHandler.__init__(self, request, client_address,
+                                        httpserver)
 
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
@@ -99,4 +104,3 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('forbidden')
         self.wfile.close()
-

@@ -35,20 +35,20 @@ class EggDrop(Plugin):
         origin_bare = str(requester).split('/')[0]
         if origin_bare not in self.admins:
             return "You're not an admin"
- 
+
         self._send_kick_iq(nick, reason, room)
         return "kicked %s" % nick
 
     def _send_kick_iq(self, nick, reason, room):
         query = ET.Element('{http://jabber.org/protocol/muc#admin}query')
-        item = ET.Element('item', {'role':'none', 'nick':nick})    
-        reason_element = ET.Element('reason')    
+        item = ET.Element('item', {'role': 'none', 'nick': nick})
+        reason_element = ET.Element('reason')
         reason_element.text = reason
         item.append(reason_element)
         iq = self.xmpp.makeIqSet(query)
         query.append(item)
         iq['to'] = room
-        result = iq.send()
+        iq.send()
 
     def __str__(self):
         return 'eggdrop'

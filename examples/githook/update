@@ -35,12 +35,20 @@ if not re.match(r'^\w+$', new):
     exit(1)
 
 if old == '0000000000000000000000000000000000000000':
-    heads = commands.getoutput("git for-each-ref --format='%(refname)' 'refs/heads/*'")
-    heads = heads.replace('\n',' ')
+    heads = commands.getoutput(
+        "git for-each-ref --format='%(refname)' 'refs/heads/*'"
+    )
+    heads = heads.replace('\n', ' ')
     heads = re.sub(r'^/', '^', heads)
-    command = "git log --pretty=format:'[%%h] by %%ae - %%s%%n%%b' --stat %s --not %s" % (new, heads)
+    command = (
+        "git log --pretty=format:'[%%h] by %%ae - %%s%%n%%b' "
+        "--stat %s --not %s" % (new, heads)
+    )
 else:
-    command = "git log %s..%s --pretty=format:'[%%h] by %%ae - %%s%%n%%b' --stat %s" % (old, new, ref)
+    command = (
+        "git log %s..%s --pretty=format:'[%%h] by %%ae - %%s%%n%%b' "
+        "--stat %s" % (old, new, ref)
+    )
 
 try:
     message = commands.getoutput(command)

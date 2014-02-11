@@ -64,7 +64,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == '/random':
             self.send_response(200)
             self.send_header("Content-type", "text")
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Cache-Control',
+                             'no-cache, no-store, must-revalidate')
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
             self.end_headers()
@@ -86,7 +87,8 @@ class Handler(BaseHTTPRequestHandler):
             )
         else:
             try:
-                with open(os.path.join('src', self.path[1:]), 'rb') as file_being_served:
+                filename = os.path.join('src', self.path[1:])
+                with open(filename, 'rb') as file_being_served:
                     self.send_response(200)
                     for ext, mime in mime_types.items():
                         if self.path.lower().endswith(ext):
