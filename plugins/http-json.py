@@ -94,7 +94,6 @@ class Handler(BaseHTTPRequestHandler):
 
             self.send_response(200)
             self.end_headers()
-            self.wfile.write('ok')
             self.wfile.close()
         else:
             self.return_forbidden()
