@@ -26,10 +26,12 @@ class Quotes(Plugin):
             cursor.close()
             self.db.commit()
             
-        if self.creep.slack:
-          self.creep.slack.send_message(str([message]))
-        
-        return 'inserted quote \'%s\'' % quote_id
+            if self.creep:
+              quote = self.iq(quote_id)
+              if not quote.startswith('invalid quote_id:')
+                self.creep.send_message_to_slack(quote)
+            
+            return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
         '''Query for a quote. For example: "iq 123"'''
