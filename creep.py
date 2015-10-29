@@ -1,6 +1,7 @@
 import sleekxmpp
 import logging
 import inspect
+from slack import Slack
 from plugins import Plugin
 from threading import Timer
 
@@ -15,6 +16,8 @@ class Creep():
 
     def __init__(self, config):
         logging.basicConfig(level=logging.INFO)
+        
+        self.slack = Slack(self, config) if config["slack"] else None
         self.config = config
         self.muted_rooms = set()
         self.xmpp = sleekxmpp.ClientXMPP(
@@ -31,7 +34,7 @@ class Creep():
         else:
             self.xmpp.connect()
         logging.info("Connected")
-
+        
         self.xmpp.process()
 
         self.xmpp.add_event_handler("session_start", self.handle_connected)
@@ -42,6 +45,8 @@ class Creep():
         if 'plugins' in config:
             self._load_plugins(config['plugins'], config)
 
+        self.slack.start()
+        
     def handle_connected(self, flap):
         self.xmpp.send_presence()
         logging.info("Started processing")
@@ -51,7 +56,10 @@ class Creep():
                                                  wait=True)
             logging.info("Connected to chat room '%s'" % room)
 
-    def handle_message(self, message):
+    def handle_message(self, message, sender=None):
+        if isinstance(sender, Slack):
+          return self.__handle_message(message, sender)
+          
         body = message['body']
         if not self.from_us(message):
             if not message.get_mucroom():
@@ -62,7 +70,7 @@ class Creep():
                 message.reply(reply).send()
 
         logging.debug('Handled request "%s"' % body)
-
+    
     def mute(self, room, timeout=10):
         def unmute_room():
             self.unmute(room)
@@ -106,7 +114,8 @@ class Creep():
             plugin.shutdown()
 
         self.xmpp.disconnect(wait=True)
-
+        slack.shutdown()
+        
     def _load_plugins(self, names, config):
         for name in names:
             try:

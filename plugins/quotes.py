@@ -2,7 +2,6 @@ from plugin import Plugin
 import sqlite3
 from threading import Lock
 
-
 class Quotes(Plugin):
 
     provides = ['aq', 'iq', 'q', 'sq', 'lq', 'dq']
@@ -10,6 +9,7 @@ class Quotes(Plugin):
     def __init__(self, creep, config=None):
         self.__initialize_db()
         self.lock = Lock()
+        self.creep = creep
         if 'admins' in config:
             self.admins = config['admins']
         else:
@@ -24,7 +24,10 @@ class Quotes(Plugin):
             quote_id = result.lastrowid
             cursor.close()
             self.db.commit()
-
+            
+            if self.creep.slack:
+              self.creep.slack.send_message(str([message]))
+           
             return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
