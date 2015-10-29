@@ -43,7 +43,15 @@ class Slack():
     return None
   
   def get_user_id(self, config):
-    return config["slack"]["userid"]
+     if self.connected:
+       user_list = json.loads(self.client.api_call("users.list"))
+       user = filter(lambda u: u["profile"]["email"] == config["slack"]["email"], user_list["members"])
+     if user:
+        return user[0]["id"]
+      else:
+        raise Exception("Unable to locate user: " + config["slack"]["email"])
+    self._debug("Not connected.")
+    return None
   
   def connect(self, config):
     if self.client.rtm_connect():

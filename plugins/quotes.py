@@ -17,6 +17,7 @@ class Quotes(Plugin):
 
     def aq(self, message=None, origin=None):
         '''Add a quote. For example: "aq this is my quote"'''
+        quote_id=None
         with self.lock:
             cursor = self.db.cursor()
             query = 'insert into quotes (content) values (?)'
@@ -25,10 +26,10 @@ class Quotes(Plugin):
             cursor.close()
             self.db.commit()
             
-            if self.creep.slack:
-              self.creep.slack.send_message(str([message]))
-           
-            return 'inserted quote \'%s\'' % quote_id
+        if self.creep.slack:
+          self.creep.slack.send_message(str([message]))
+        
+        return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
         '''Query for a quote. For example: "iq 123"'''
