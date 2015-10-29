@@ -113,11 +113,11 @@ class Creep():
         return False
 
     def shutdown(self):
+        self.slack.shutdown()
         for plugin in self.plugins:
             plugin.shutdown()
 
         self.xmpp.disconnect(wait=True)
-        self.slack.shutdown()
         
     def _load_plugins(self, names, config):
         for name in names:
