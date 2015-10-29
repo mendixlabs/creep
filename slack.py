@@ -12,11 +12,12 @@ class Slack():
     self.debug = debug
     self.creep = creep
     self.token = config["slack"]["token"]
-    self.channel = config["slack"]["channel"]
     self.client = SlackClient(self.token)
+    
+    self.channel = None
+    self.user_id = None
     self.connected = False
     self.connect(config)
-    self.user_id = self.get_user_id(config)    
       
   def shutdown(self):
     self.keep_running = False
@@ -34,39 +35,44 @@ class Slack():
       if message:
         self.message_read(message)
   
-  def get_channel_id(self):
+  def _set_channel(self, config):
     if self.connected:
       channel_info = json.loads(self.client.api_call("channels.list"))
-      channel = filter(lambda channel: channel["name"] == self.channel, channel_info["channels"])
+      channel = filter(lambda channel: channel["name"] == config["slack"]["channel"], channel_info["channels"])
       if channel:
-        return channel[0]["id"]
+        self.channel = channel[0]["id"]
+        logging.debug("Channel id set to '%s'" % self.user_id)
+        return True
       else:
-        logging.exception("Channel '" + self.channel + "' does not exists yet!")
+        logging.exception("Channel '" + config["slack"]["channel"] + "' does not exists yet!")
     else:
       logging.info("Not connected.")
-    return None
+    return False
   
-  def get_user_id(self, config):
+  def _set_user_id(self, config):
      if self.connected:
        user_list = json.loads(self.client.api_call("users.list"))
        user = filter(lambda u: u["profile"]["email"] == config["slack"]["email"], user_list["members"])
        if user:
-         return user[0]["id"]
+         self.user_id = user[0]["id"]
+         logging.debug("User id set to '%s'" % self.user_id)
+         return True
        else:
          logging.exception("Unable to locate user: " + config["slack"]["email"])
       else:
         logging.info("Not connected.")
-    return None
+    return False
   
   def connect(self, config):
     if self.client.rtm_connect():
       self.connected = True
-      self.get_channel_id()
-      self.client.rtm_send_message(self.channel, lines[int(random()*len(lines))])
+      if self._set_channel(config) and self._set_user_id(config) and self.channel:
+        self.client.rtm_send_message(self.channel, lines[int(random()*len(lines))])
+        return True
     else:
-      logging.exception("Connection Failed, invalid token: " + config["slack"]["token"])
       self.connected = False
-    return None
+      logging.exception("Connection Failed, invalid token: " + config["slack"]["token"])
+    return False
   
   def send_message(self, message, channel=None):
     if self.connected:
@@ -74,9 +80,10 @@ class Slack():
         channel = self.channel
       self.client.rtm_send_message(channel, message)
       logging.debug("%s| %s" % channel, message)
+      return True
     else:  
       logging.info("Not connected")
-    return None
+    return False
     
   def message_read(self, message):
     m = message[0]
@@ -88,8 +95,7 @@ class Slack():
         response = self.creep.handle_message(m["text"], self)
         self.send_message(response, channel)
     else:
-      logging.debug("message ignored:| %s" % message)
-    return None
+      logging.debug("message ignored: %s" % message)
   
   def _highlight(self):
     return "Want to use my awesome quoting functionality? DM me!"
@@ -99,5 +105,7 @@ class Slack():
     
 lines = [
   "Back in the house!", 
-  "Boo!"
+  "Boo!",
+  "Respect for the man with the icecream van!",
+  "It's nice to be important, but it's more important to be nice!"
 ]
