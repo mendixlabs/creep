@@ -85,7 +85,7 @@ class Creep():
                                    mbody="I'm back baby!",
                                    mtype='groupchat')
 
-    def send_message_to_slack(self, message):
+    def send_slack_message(self, message):
       self.slack.send_message(message)
 
     def __handle_message(self, body, origin):

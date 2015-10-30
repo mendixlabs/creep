@@ -29,7 +29,7 @@ class Quotes(Plugin):
             if self.creep:
               quote = self.iq(quote_id)
               if not quote.startswith('invalid quote_id:')
-                self.creep.send_message_to_slack(quote)
+                self.creep.send_slack_message(quote)
             
             return 'inserted quote \'%s\'' % quote_id
 

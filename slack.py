@@ -38,7 +38,7 @@ class Slack():
   def _set_channel(self, config):
     if self.connected:
       channel_info = json.loads(self.client.api_call("channels.list"))
-      channel = filter(lambda channel: channel["name"] == config["slack"]["channel"], channel_info["channels"])
+      channel = filter(lambda c: c["name"] == config["slack"]["channel"], channel_info["channels"])
       if channel:
         self.channel = channel[0]["id"]
         logging.debug("Channel id set to '%s'" % self.user_id)
@@ -65,7 +65,7 @@ class Slack():
   def connect(self, config):
     if self.client.rtm_connect():
       self.connected = True
-      if self._set_channel(config) and self._set_user_id(config) and self.channel:
+      if self._set_channel(config) and self._set_user_id() and self.channel:
         self.client.rtm_send_message(self.channel, lines[int(random()*len(lines))])
         return True
     else:
