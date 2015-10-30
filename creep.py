@@ -86,10 +86,12 @@ class Creep():
                                    mtype='groupchat')
 
     def send_slack_message(self, message):
-        self.slack.send_message(message)
+        if self.slack:
+            self.slack.send_message(message)
       
     def delete_slack_message(self, quote_id):
-        self.slack.delete_message(quote_id)
+        if self.slack:
+            self.slack.delete_message(quote_id)
 
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
