@@ -1,6 +1,8 @@
 import time
 import json
 import logging
+import errno
+from ssl import SSLError
 from slackclient import SlackClient
 from threading import Thread
 from random import random
@@ -12,27 +14,36 @@ class Slack():
         self.creep = creep
         self.token = config["slack"]["token"]
         self.client = SlackClient(self.token)
-        
         self.channel = None
         self.user_id = None
         self.connected = False
         self.connect(config)
             
-    def shutdown(self):
+    def shutdown(self, shutup=False):
+        logging.debug("Going back to sleep, ZzzzZzzzz...")
         self.keep_running = False
-        self.send_message("Catch you on the flip side!")
+        if not shutup: 
+            self.send_message("Catch you on the flip side!")
     
-    def start(self):  
+    def start(self):
+        self.keep_running = True
         self.thread = Thread(target=self._run)
         self.thread.start()
         logging.debug("Started slack service integration")
     
     def _run(self):
-        self.keep_running = True
         while self.keep_running:
-            message = self.client.rtm_read()
-            if message:
-                self.message_read(message)
+            message = None
+            try: 
+                message = self.client.rtm_read()
+                if message:
+                    self.read_message(message)
+            except Exception as e:
+                if e.errno == 11:
+                    self.client.server.rtm_connect(reconnect=True)
+                    pass
+                else:
+                    raise e
     
     def _set_channel(self, config):
         if self.connected:
@@ -88,11 +99,11 @@ class Slack():
         if 'members' in result.keys() and result["members"]:
             user = filter(lambda u: 'id' in u.keys() and u["id"] == user_id, result["members"])
             if user and user[0] and 'profile' in user[0].keys() and 'email' in user[0]["profile"].keys():
-              return user[0]["profile"]["email"]
+                return user[0]["profile"]["email"]
           
         return None
     
-    def message_read(self, message):
+    def read_message(self, message):
         m = message[0]
         if 'type' in m.keys() and m["type"] == "message" and 'text' in m.keys() and m["text"]:
             if m["text"].startswith("<@" +self.user_id + ">"):
