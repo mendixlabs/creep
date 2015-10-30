@@ -82,7 +82,16 @@ class Slack():
         else:  
             logging.info("Not connected")
         return False
-        
+    
+    def _get_user_by_id(self, user_id=None):
+        result = json.loads(self.client.api_call("users.list", token=self.token))
+        if 'members' in result.keys() and result["members"]:
+            user = filter(lambda u: 'id' in u.keys() and u["id"] == user_id, result["members"])
+            if user and user[0] and 'profile' in user[0].keys() and 'email' in user[0]["profile"].keys():
+              return user[0]["profile"]["email"]
+          
+        return None
+    
     def message_read(self, message):
         m = message[0]
         if 'type' in m.keys() and m["type"] == "message" and 'text' in m.keys() and m["text"]:
@@ -90,7 +99,7 @@ class Slack():
                 self.send_message(self._highlight())
             elif m["channel"][0]=="D": # direct message
                 channel = m["channel"]
-                response = self.creep.handle_message(m["text"], self)
+                response = self.creep.handle_message(m["text"], self, self._get_user_by_id(m["user"]))
                 self.send_message(response, channel)
         else:
             logging.debug("message ignored: %s" % message)

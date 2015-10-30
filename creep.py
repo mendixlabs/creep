@@ -56,9 +56,9 @@ class Creep():
                                                  wait=True)
             logging.info("Connected to chat room '%s'" % room)
 
-    def handle_message(self, message, sender=None):
+    def handle_message(self, message, sender=None, user=None):
         if isinstance(sender, Slack):
-          return self.__handle_message(message, sender)
+          return self.__handle_message(message, user)
           
         body = message['body']
         if not self.from_us(message):

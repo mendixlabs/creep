@@ -105,8 +105,8 @@ class Quotes(Plugin):
     def dq(self, message=None, origin=None):
         '''Delete a quote. Only available for admins'''
         origin_bare = str(origin).split('/')[0]
-        #if origin_bare not in self.admins:
-            #return "You're not an admin"
+        if origin_bare not in self.admins:
+            return "You're not an admin"
 
         with self.lock:
             try:
