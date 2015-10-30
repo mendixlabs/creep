@@ -50,17 +50,27 @@ class Slack():
     return False
   
   def _set_user_id(self, config):
-     if self.connected:
-       user_list = json.loads(self.client.api_call("users.list"))
-       user = filter(lambda u: u["profile"]["email"] == config["slack"]["email"], user_list["members"])
-       if user:
-         self.user_id = user[0]["id"]
-         logging.debug("User id set to '%s'" % self.user_id)
-         return True
-       else:
-         logging.exception("Unable to locate user: " + config["slack"]["email"])
+    if self.connected:
+      user_list = json.loads(self.client.api_call("users.list"))
+      user = None
+      
+      if config["slack"]["user"]["id"]:
+        self.user_id = user[0]["id"]
+        logging.debug("User id directly set to '%s' from config" % self.user_id)
+        return True
+      elif config["slack"]["user"]["name"]:
+        user = filter(lambda u: u["name"] == config["slack"]["user"]["name"], user_list["members"])
+      elif config["slack"]["user"]["email"]:
+        user = filter(lambda u: u["profile"]["email"] == config["slack"]["user"]["email"], user_list["members"])
+      
+      if user:
+        self.user_id = user[0]["id"]
+        logging.debug("User id set to '%s'" % self.user_id)
+        return True
       else:
-        logging.info("Not connected.")
+        logging.exception("Unable to locate user: " + config["slack"]["email"])
+    else:
+      logging.info("Not connected.")
     return False
   
   def connect(self, config):
