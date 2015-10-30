@@ -33,18 +33,10 @@ class Slack():
     
     def _run(self):
         while self.keep_running:
-            message = None
-            try: 
-                message = self.client.rtm_read()
-                if message:
-                    self.read_message(message)
-            except Exception as e:
-                if e.errno == 11:
-                    self.client.server.rtm_connect(reconnect=True)
-                    pass
-                else:
-                    raise e
-    
+            message = self.client.rtm_read()
+            if message:
+                self.read_message(message)
+           
     def _set_channel(self, config):
         if self.connected:
             channel_info = json.loads(self.client.api_call("channels.list"))
@@ -83,16 +75,14 @@ class Slack():
             logging.exception("Connection Failed, invalid token: " + config["slack"]["token"])
         return False
     
-    def send_message(self, message, channel=None):
-        if self.connected:
-            if not channel:
-                channel = self.channel
-            self.client.rtm_send_message(channel, message)
-            logging.debug("%s| %s" % (channel, message))
-            return True
-        else:  
-            logging.info("Not connected")
-        return False
+    def send_message(self, message, channel=None):  
+        if not channel:
+            channel = self.channel
+        
+        sc = SlackClient(self.token)
+        sc.rtm_connect()
+        sc.rtm_send_message(channel, message)
+        logging.debug("%s| %s" % (channel, message))
     
     def _get_user_by_id(self, user_id=None):
         result = json.loads(self.client.api_call("users.list", token=self.token))
@@ -100,12 +90,11 @@ class Slack():
             user = filter(lambda u: 'id' in u.keys() and u["id"] == user_id, result["members"])
             if user and user[0] and 'profile' in user[0].keys() and 'email' in user[0]["profile"].keys():
                 return user[0]["profile"]["email"]
-          
         return None
     
     def read_message(self, message):
         m = message[0]
-        if 'type' in m.keys() and m["type"] == "message" and 'text' in m.keys() and m["text"]:
+        if set(["type", "text", "user"])<=m.keys() and m["type"]=="message" and m["user"] != self.user_id:
             if m["text"].startswith("<@" +self.user_id + ">"):
                 self.send_message(self._highlight())
             elif m["channel"][0]=="D": # direct message
@@ -145,7 +134,6 @@ class Slack():
         
 lines = [
     "Back in the house!", 
-    "Boo!",
     "Respect for the man with the ice cream van!",
     "It's nice to be important, but it's more important to be nice!"
 ]
