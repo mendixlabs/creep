@@ -26,12 +26,13 @@ class Quotes(Plugin):
             cursor.close()
             self.db.commit()
             
-            if self.creep:
-              quote = self.iq(quote_id)
-              if not quote.startswith('invalid quote_id:')
-                self.creep.send_slack_message(quote)
             
-            return 'inserted quote \'%s\'' % quote_id
+        if self.creep:
+          quote = str("%d - %s" % (quote_id, self.iq(quote_id)))
+          if not quote.startswith('invalid quote_id:'):
+            self.creep.send_slack_message(quote)
+        
+        return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
         '''Query for a quote. For example: "iq 123"'''
@@ -104,8 +105,8 @@ class Quotes(Plugin):
     def dq(self, message=None, origin=None):
         '''Delete a quote. Only available for admins'''
         origin_bare = str(origin).split('/')[0]
-        if origin_bare not in self.admins:
-            return "You're not an admin"
+        #if origin_bare not in self.admins:
+            #return "You're not an admin"
 
         with self.lock:
             try:
@@ -121,6 +122,9 @@ class Quotes(Plugin):
                 cursor.execute(query, [quote_id])
                 cursor.close()
                 self.db.commit()
+                
+                if self.creep:
+                    self.creep.delete_slack_message(quote_id)
 
                 return "'%s' deleted" % quote_id
             except ValueError:
