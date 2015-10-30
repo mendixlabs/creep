@@ -44,27 +44,16 @@ class Slack():
         logging.debug("Channel id set to '%s'" % self.user_id)
         return True
       else:
-        logging.exception("Channel '" + config["slack"]["channel"] + "' does not exists yet!")
+        logging.exception("Channel '" + config["slack"]["channel"] + "' does not exists yet or you are not a member!")
     else:
       logging.info("Not connected.")
     return False
   
-  def _set_user_id(self, config):
+  def _set_user_id(self):
     if self.connected:
-      user_list = json.loads(self.client.api_call("users.list"))
-      user = None
-      
-      if config["slack"]["user"]["id"]:
-        self.user_id = user[0]["id"]
-        logging.debug("User id directly set to '%s' from config" % self.user_id)
-        return True
-      elif config["slack"]["user"]["name"]:
-        user = filter(lambda u: u["name"] == config["slack"]["user"]["name"], user_list["members"])
-      elif config["slack"]["user"]["email"]:
-        user = filter(lambda u: u["profile"]["email"] == config["slack"]["user"]["email"], user_list["members"])
-      
+      user = json.loads(self.client.api_call("auth.test", token=self.token))
       if user:
-        self.user_id = user[0]["id"]
+        self.user_id = user["user_id"])
         logging.debug("User id set to '%s'" % self.user_id)
         return True
       else:
