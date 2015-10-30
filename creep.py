@@ -85,6 +85,12 @@ class Creep():
                                    mbody="I'm back baby!",
                                    mtype='groupchat')
 
+    def send_slack_message(self, message):
+        self.slack.send_message(message)
+      
+    def delete_slack_message(self, quote_id):
+        self.slack.delete_message(quote_id)
+
     def __handle_message(self, body, origin):
         command = body.split(' ')[0] if ' ' in body else body
         params = body[body.find(" ")+1:] if ' ' in body else None
@@ -110,11 +116,11 @@ class Creep():
         return False
 
     def shutdown(self):
+        self.slack.shutdown()
         for plugin in self.plugins:
             plugin.shutdown()
 
         self.xmpp.disconnect(wait=True)
-        slack.shutdown()
         
     def _load_plugins(self, names, config):
         for name in names:
