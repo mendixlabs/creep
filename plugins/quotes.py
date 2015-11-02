@@ -2,7 +2,6 @@ from plugin import Plugin
 import sqlite3
 from threading import Lock
 
-
 class Quotes(Plugin):
 
     provides = ['aq', 'iq', 'q', 'sq', 'lq', 'dq']
@@ -10,6 +9,7 @@ class Quotes(Plugin):
     def __init__(self, creep, config=None):
         self.__initialize_db()
         self.lock = Lock()
+        self.creep = creep
         if 'admins' in config:
             self.admins = config['admins']
         else:
@@ -17,6 +17,7 @@ class Quotes(Plugin):
 
     def aq(self, message=None, origin=None):
         '''Add a quote. For example: "aq this is my quote"'''
+        quote_id=None
         with self.lock:
             cursor = self.db.cursor()
             query = 'insert into quotes (content) values (?)'
@@ -24,8 +25,14 @@ class Quotes(Plugin):
             quote_id = result.lastrowid
             cursor.close()
             self.db.commit()
-
-            return 'inserted quote \'%s\'' % quote_id
+            
+            
+        if self.creep:
+          quote = str("%d - %s" % (quote_id, self.iq(quote_id)))
+          if not quote.startswith('invalid quote_id:'):
+            self.creep.send_slack_message(quote)
+        
+        return 'inserted quote \'%s\'' % quote_id
 
     def iq(self, message=None, origin=None):
         '''Query for a quote. For example: "iq 123"'''
@@ -115,6 +122,9 @@ class Quotes(Plugin):
                 cursor.execute(query, [quote_id])
                 cursor.close()
                 self.db.commit()
+                
+                if self.creep:
+                    self.creep.delete_slack_message(quote_id)
 
                 return "'%s' deleted" % quote_id
             except ValueError:
