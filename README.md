@@ -13,6 +13,7 @@ see requirements.txt
  - pyyaml
  - sleekxmpp
  - dnspython (optional, for dns plugin)
+ - slackclient (optional, for slack plugin)
 
 installation
 ----
