@@ -2,3 +2,4 @@ PyYAML
 dnspython
 slackbot
 boto3
+pylibmc

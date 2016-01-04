@@ -6,7 +6,11 @@ import boto3
 import random
 import time
 import os
-
+import json
+try:
+    import pylibmc
+except ImportError:
+    pass
 
 '''we use boto3 s3, configuration via environment variables'''
 
@@ -18,17 +22,38 @@ class Quotes(Plugin):
     def __init__(self, creep):
         self.admins = []
         self.bucket = boto3.resource('s3').Bucket(os.environ['S3_BUCKET_NAME'])
-        self.cache = {}
+        try:
+            credentials = json.loads(
+                os.environ['VCAP_SERVICES']
+            )['memcachier'][0]['credentials']
+            self.memcached = pylibmc.Client(
+                credentials['servers'].split(','),
+                binary=True,
+                username=credentials['username'],
+                password=credentials['password'],
+                behaviors={
+                    "tcp_nodelay": True,
+                    "ketama": True,
+                    "no_block": True,
+                }
+            )
+        except:
+            self.memcached = None
 
     def _get_quote(self, identifier):
-        if identifier in self.cache:
-            return self.cache[identifier]
-        else:
-            quote = self.bucket.Object(
-                str(int(identifier))
-            ).get()['Body'].read()
-            self.cache[identifier] = quote
-            return quote
+        try:
+            if self.memcached is not None and self.memcached.get(
+                    str(identifier)
+            ):
+                return self.memcached.get(identifier)
+        except:
+            pass
+        quote = self.bucket.Object(
+            str(int(identifier))
+        ).get()['Body'].read()
+        if self.memcached:
+            self.memcached.set(identifier, quote)
+        return quote
 
     def _print_quote(self, identifier):
         return '%s - %s' % (identifier, self._get_quote(identifier))
