@@ -78,7 +78,8 @@ class Quotes(Plugin):
             if str(message).lower() in text.lower():
                 results.append(self._print_quote(key.key, text))
         if results:
-            return '\n'.join(results)
+            random.shuffle(results)
+            return '\n'.join(results[:3])
         else:
             return 'no results'
 
