@@ -30,8 +30,8 @@ class Quotes(Plugin):
             self.cache[identifier] = quote
             return quote
 
-    def _print_quote(self, identifier, text):
-        return '%s - %s' % (identifier, text)
+    def _print_quote(self, identifier):
+        return '%s - %s' % (identifier, self._get_quote(identifier))
 
     def aq(self, message=None, origin=None):
         '''Add a quote. For example: "aq this is my quote"'''
@@ -42,14 +42,14 @@ class Quotes(Plugin):
     def iq(self, message=None, origin=None):
         '''Query for a quote. For example: "iq 123"'''
         try:
-            return self._print_quote(message, self._get_quote(message))
+            return self._print_quote(message)
         except:
             return 'quote not found or error: \'%s\'' % message
 
     def q(self, message=None, origin=None):
         '''Retrieve a random quote. For example: "q"'''
         key = random.choice(list(self.bucket.objects.all()))
-        return self._print_quote(key.key, self._get_quote(key.key))
+        return self._print_quote(key.key)
 
     def lq(self, message=None, origin=None):
         '''List the last 10 quotes, optionally from offset'''
@@ -58,10 +58,10 @@ class Quotes(Plugin):
             key=lambda obj: int(obj.key)
         )
         if message is not None and len(message) > 0:
-            quotes = quotes.filter(lambda q: int(q.key) < int(message))
+            quotes = filter(lambda q: int(q.key) < int(message), quotes)
         quotes = quotes[-10:]
         return '\n'.join(
-            self._print_quote(key.key, self._get_quote(key.key))
+            self._print_quote(key.key)
             for key in quotes
         )
 
@@ -71,7 +71,7 @@ class Quotes(Plugin):
         for key in self.bucket.objects.all():
             text = self._get_quote(key.key)
             if str(message).lower() in text.lower():
-                results.append(self._print_quote(key.key, text))
+                results.append(self._print_quote(key.key))
         if results:
             random.shuffle(results)
             return '\n'.join(results[:3])
