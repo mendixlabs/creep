@@ -22,6 +22,7 @@ class Quotes(Plugin):
     def __init__(self, creep):
         self.admins = []
         self.bucket = boto3.resource('s3').Bucket(os.environ['S3_BUCKET_NAME'])
+        self.cache = {}
         try:
             credentials = json.loads(
                 os.environ['VCAP_SERVICES']
@@ -42,10 +43,13 @@ class Quotes(Plugin):
 
     def _get_quote(self, identifier):
         try:
-            if self.memcached is not None and self.memcached.get(
-                    str(identifier)
-            ):
-                return self.memcached.get(identifier)
+            if identifier in self.cache:
+                return self.cache[identifier]
+            if self.memcached is not None:
+                x = self.memcached.get(identifier)
+                if x:
+                    self.cache[identifier] = x
+                    return x
         except:
             pass
         quote = self.bucket.Object(
@@ -53,6 +57,7 @@ class Quotes(Plugin):
         ).get()['Body'].read()
         if self.memcached:
             self.memcached.set(identifier, quote)
+        self.cache[identifier] = quote
         return quote
 
     def _print_quote(self, identifier):
