@@ -1,6 +1,6 @@
 import logging
 import inspect
-import slack  # todo
+from slackbot.bot import Bot
 from plugins import Plugin
 from threading import Timer
 
@@ -17,16 +17,17 @@ class Creep():
         logging.basicConfig(level=logging.INFO)
         self.config = config
         self.muted_rooms = set()
-        self.slack.connect  # TODO
 
         self.handlers = {}
         self.plugins = []
         if 'plugins' in config:
             self._load_plugins(config['plugins'], config)
-
-    def handle_connected(self, flap):
-        for room in self.config['xmpp'].get('autojoin', []):
-            pass  # TODO auto join rooms
+        self.bot = Bot()
+        for k, v in self.bot._client.channels.iteritems():
+            if 'name' in v and v['name'] == 'creep':
+                self.bot._client.send_message(
+                    k, 'Creep reporting for duty!'
+                )
 
     def mute(self, room, timeout=10):  # TODO
         def unmute_room():
@@ -42,26 +43,30 @@ class Creep():
                                    mbody="I'm back baby!",
                                    mtype='groupchat')
 
-    def __handle_message(self, body, origin):
+    def run(self):
+        self.bot.run()
+
+    def handle_message(self, message):
+        body = message.body['text']
         command = body.split(' ')[0] if ' ' in body else body
         params = body[body.find(" ")+1:] if ' ' in body else None
         if command in self.handlers:
             handler = self.handlers[command]
             try:
-                result = handler(message=params, origin=origin)
-                return result
+                result = handler(message=params, origin=message.channel)
+                message.reply(result)
             except Exception:
                 logging.exception("Couldn't handle command '%s': " % command)
-                return "Sorry, I got into trouble"
+                message.reply("Sorry, I got into trouble")
         else:
-            return ("Unknown command: '%s'. "
-                    'Run "help" for more info on available commands.' % body)
+            message.reply(
+                "Unknown command: '%s'. "
+                'Run "help" for more info on available commands.' % body
+            )
 
     def shutdown(self):
         for plugin in self.plugins:
             plugin.shutdown()
-
-        self.slack.disconnect(wait=True)  # TODO
 
     def _load_plugins(self, names, config):
         for name in names:

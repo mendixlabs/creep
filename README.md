@@ -1,8 +1,8 @@
 creep
 =====
 
-XMPP-based chatbot that's easy to extend. Originally inspired by <a href="https://pypi.python.org/pypi/gozerbot">gozerbot</a>. Easy & minimal plugin structure, couple of useful plugins out-of-the-box:
- - http-json: provides HTTP interface that lets you POST messages to a XMPP conference rooms
+Slack-based chatbot that's easy to extend. Originally inspired by <a href="https://pypi.python.org/pypi/gozerbot">gozerbot</a>. Easy & minimal plugin structure, couple of useful plugins out-of-the-box:
+ - http-json: provides HTTP interface that lets you POST messages to a Slack channel
  - quotes: add & ask about quotes
  - dns-resolver: resolve domains from within the bot. Useful for situations where your bot is running behind your firewall but you want to quickly resolve a host on that local network
 
@@ -11,7 +11,7 @@ requirements
 ----
 see requirements.txt
  - pyyaml
- - sleekxmpp
+ - slackbot
  - dnspython (optional, for dns plugin)
 
 installation
@@ -24,7 +24,6 @@ Recommended way of installing is via virtualenv:
 running
 ----
 See example config: creep.yaml.example
-At the very least, jid, password & default room configured (you can use your gmail/gchat account if you want to mess around and test)
 
 Running:
 
