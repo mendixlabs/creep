@@ -7,13 +7,10 @@ class Quotes(Plugin):
 
     provides = ['aq', 'iq', 'q', 'sq', 'lq', 'dq']
 
-    def __init__(self, creep, config=None):
+    def __init__(self, creep):
         self.__initialize_db()
         self.lock = Lock()
-        if 'admins' in config:
-            self.admins = config['admins']
-        else:
-            self.admins = []
+        self.admins = []
 
     def aq(self, message=None, origin=None):
         '''Add a quote. For example: "aq this is my quote"'''

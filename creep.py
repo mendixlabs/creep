@@ -3,6 +3,7 @@ import inspect
 from slackbot.bot import Bot
 from plugins import Plugin
 from threading import Timer
+import os
 
 '''
 TODO
@@ -13,35 +14,37 @@ TODO
 
 class Creep():
 
-    def __init__(self, config):
+    def __init__(self):
         logging.basicConfig(level=logging.INFO)
-        self.config = config
         self.muted_rooms = set()
 
         self.handlers = {}
         self.plugins = []
-        if 'plugins' in config:
-            self._load_plugins(config['plugins'], config)
+        if 'PLUGINS' in os.environ:
+            self._load_plugins(map(
+                str.strip,
+                os.environ['PLUGINS'].split(',')
+            ))
         self.bot = Bot()
-        for k, v in self.bot._client.channels.iteritems():
-            if 'name' in v and v['name'] == 'creep':
-                self.bot._client.send_message(
-                    k, 'Creep reporting for duty!'
-                )
+#        for k, v in self.bot._client.channels.iteritems():
+#            if 'name' in v and v['name'] == 'creep':
+#                self.bot._client.send_message(
+#                    k, 'Creep reporting for duty!'
+#                )
 
-    def mute(self, room, timeout=10):  # TODO
+    def mute(self, room_id, timeout=10):  # TODO
         def unmute_room():
-            self.unmute(room)
+            self.unmute(room_id)
 
-        self.muted_rooms.add(room)
+        self.muted_rooms.add(room_id)
         Timer(timeout, unmute_room).start()
 
-    def unmute(self, room):  # TODO
-        if room in self.muted_rooms:
-            self.muted_rooms.remove(room)
-            self.xmpp.send_message(mto=room,
-                                   mbody="I'm back baby!",
-                                   mtype='groupchat')
+    def unmute(self, room_id):  # TODO
+        if room_id in self.muted_rooms:
+            self.muted_rooms.remove(room_id)
+            self.bot._client.send_message(
+                room_id, "I'm back baby!"
+            )
 
     def run(self):
         self.bot.run()
@@ -68,14 +71,14 @@ class Creep():
         for plugin in self.plugins:
             plugin.shutdown()
 
-    def _load_plugins(self, names, config):
+    def _load_plugins(self, names):
         for name in names:
             try:
-                self._load_plugin(name, config)
+                self._load_plugin(name)
             except Exception:
                 logging.exception("Couldn't load plugin '%s':" % name)
 
-    def _load_plugin(self, name, config):
+    def _load_plugin(self, name):
         '''
         assumes there's only one class per plugin
         '''
@@ -86,7 +89,7 @@ class Creep():
             if (inspect.isclass(item) and
                     issubclass(item, Plugin) and
                     not item == Plugin):
-                plugin_instance = item(self, config=config)
+                plugin_instance = item(self)
                 for handler_name in item.provides:
                     if handler_name in self.handlers.keys():
                         raise Exception("Can't load '%s': handler already "

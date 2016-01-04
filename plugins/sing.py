@@ -6,7 +6,7 @@ class Sing(Plugin):
 
     provides = ['sing']
 
-    def __init__(self, creep, config=None):
+    def __init__(self, creep):
         pass
 
     def sing(self, message=None, origin=None):

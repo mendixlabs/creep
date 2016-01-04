@@ -16,12 +16,7 @@ def handle_message(message):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    yamlfile = ('/usr/local/etc/creep.yaml'
-                if os.path.isfile('/usr/local/etc/creep.yaml') else
-                'creep.yaml')
-    config = yaml.load(open(yamlfile))
-
-    creep = Creep(config)
+    creep = Creep()
 
     def handle_ctrl_c(signal, frame):
         creep.shutdown()

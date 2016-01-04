@@ -1,5 +1,4 @@
 from threading import Thread
-import urllib2
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import cgi
 from base64 import decodestring
@@ -8,17 +7,16 @@ import json
 import os
 
 
-class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
+class HttpJson(Plugin):
 
-    def __init__(self, creep, config=None):
-        self.host = config['http']['host']
-        self.port = config['http']['port']
-        self.default_room = config['xmpp']['default_room']
+    def __init__(self, creep):
+        self.port = (int(os.environ['PORT']))
+        self.default_room = 'creep'
         self.creep = creep
-        server_address = ('', int(os.environ['PORT']))
-        secret = (
-            config['http']['secret'] if 'secret' in config['http'] else None
-        )
+        server_address = ('', self.port)
+        secret = os.environ.get('HTTP_SECRET')
+        if secret is not None:
+            print('Enabled http listener with secret authentication')
 
         def get_handler(request, client_address, httpserver):
             return Handler(request, client_address, httpserver, secret=secret,
@@ -36,7 +34,6 @@ class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
 
     def shutdown(self):
         self.keep_running = False
-        self._fire_dummy_request()
 
     def broadcast_message(self, content, content_type):
         if content_type == 'application/json':
@@ -46,19 +43,16 @@ class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
         else:
             msg = content
             room = self.default_room
+        if '@' in room:
+            room = room.split('@')[0]
+        room_id = None
+        channels = self.creep.bot._client.channels
+        for slack_room_id, room_details in channels.iteritems():
+            if 'name' in room_details and room_details['name'] == room:
+                room_id = slack_room_id
 
-        if not room in self.creep.muted_rooms:
-            self.creep.xmpp.send_message(mto=room,
-                                         mbody="%s" % msg,
-                                         mtype='groupchat')
-
-    def _fire_dummy_request(self):
-        try:
-            url = 'http://%s:%s' % (self.host, self.port)
-            urllib2.urlopen(url, data='bubye now', timeout=5)
-        except:
-            # we might already have shutdown due to other request
-            pass
+        if room_id and room_id not in self.creep.muted_rooms:
+            self.creep.bot._client.send_message(room_id, msg)
 
     def __str__(self):
         return 'http-json'

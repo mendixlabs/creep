@@ -5,7 +5,7 @@ class Mute(Plugin):
 
     provides = ['mute', 'unmute', 'shutup']
 
-    def __init__(self, creep, config=None):
+    def __init__(self, creep):
         self.creep = creep
         self.shutup = self.mute
 
@@ -18,15 +18,23 @@ class Mute(Plugin):
             except:
                 pass
 
-        room, _ = str(origin).split('/')
-        self.creep.mute(room, timeout=timeout)
-        return "I'm going to be quiet for %s seconds now" % timeout
+        if 'id' in origin._body:
+            self.creep.mute(origin._body['id'], timeout=timeout)
+            return "I'm going to be quiet for %s seconds now" % timeout
+        else:
+            return ('Sorry, could not find the '
+                    'channel from which you posted this'
+                    )
 
     def unmute(self, message=None, origin=None):
         '''Unmute me'''
-        room, _ = str(origin).split('/')
-        self.creep.unmute(room)
-        return None
+        if 'id' in origin._body:
+            self.creep.unmute(origin._body['id'])
+            return None
+        else:
+            return ('Sorry, could not find the '
+                    'channel from which you posted this'
+                    )
 
     def __str__(self):
         return 'mute'

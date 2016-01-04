@@ -5,7 +5,7 @@ class Hello(Plugin):
 
     provides = ['hello', 'hi']
 
-    def __init__(self, creep, config=None):
+    def __init__(self, creep):
         pass
 
     def hello(self, message=None, origin=None):

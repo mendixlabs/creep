@@ -5,7 +5,7 @@ class Help(Plugin):
 
     provides = ['help']
 
-    def __init__(self, creep, config=None):
+    def __init__(self, creep):
         self.creep = creep
 
     def help(self, message=None, origin=None):

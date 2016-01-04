@@ -12,7 +12,7 @@ class DNSResolver(Plugin):
 
     provides = ['dns']
 
-    def __init__(self, xmpp, config=None):
+    def __init__(self, xmpp):
         pass
 
     def dns(self, message=None, origin=None):
