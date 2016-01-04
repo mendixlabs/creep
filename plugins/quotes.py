@@ -5,6 +5,10 @@ from plugin import Plugin
 import boto3
 import random
 import time
+import os
+
+
+'''we use boto3 s3, configuration via environment variables'''
 
 
 class Quotes(Plugin):
@@ -13,7 +17,7 @@ class Quotes(Plugin):
 
     def __init__(self, creep):
         self.admins = []
-        self.bucket = boto3.resource('s3').Bucket('creep-quotes')
+        self.bucket = boto3.resource('s3').Bucket(os.environ['S3_BUCKET_NAME'])
         self.cache = {}
 
     def _get_quote(self, identifier):
@@ -47,20 +51,24 @@ class Quotes(Plugin):
         l = []
         all = list(self.bucket.objects.all())
         for _ in range(3):
-            all.append(random.choice(all))
+            l.append(random.choice(all))
         return '\n'.join(
             self._print_quote(key.key, self._get_quote(key.key)) for key in l
         )
 
     def lq(self, message=None, origin=None):
         '''List the last 10 quotes, optionally from offset'''
-        quotes = []
-        for key in sorted(
+        quotes = sorted(
             list(self.bucket.objects.all()),
             key=lambda obj: int(obj.key)
-        )[-10:]:
-            quotes.append(self._print_quote(key.key, self._get_quote(key.key)))
-        return '\n'.join(quotes)
+        )
+        if message is not None and len(message) > 0:
+            quotes = quotes.filter(lambda q: int(q.key) < int(message))
+        quotes = quotes[-10:]
+        return '\n'.join(
+            self._print_quote(key.key, self._get_quote(key.key))
+            for key in quotes
+        )
 
     def sq(self, message=None, origin=None):
         '''Search for a quote. For example: "sq name"'''
