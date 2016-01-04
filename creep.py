@@ -1,6 +1,6 @@
-import sleekxmpp
 import logging
 import inspect
+import slack  # todo
 from plugins import Plugin
 from threading import Timer
 
@@ -17,25 +17,7 @@ class Creep():
         logging.basicConfig(level=logging.INFO)
         self.config = config
         self.muted_rooms = set()
-        self.xmpp = sleekxmpp.ClientXMPP(
-            '%s/%s' % (config['xmpp']['jid'], config['xmpp']['resource']),
-            config['xmpp']['password']
-        )
-
-        self.xmpp.register_plugin('xep_0045')
-
-        logging.info("Connecting %s" % config['xmpp']['jid'])
-        if 'server' in config['xmpp'] and 'port' in config['xmpp']:
-            self.xmpp.connect((config['xmpp']['server'],
-                               config['xmpp']['port']))
-        else:
-            self.xmpp.connect()
-        logging.info("Connected")
-
-        self.xmpp.process()
-
-        self.xmpp.add_event_handler("session_start", self.handle_connected)
-        self.xmpp.add_event_handler('message', self.handle_message)
+        self.slack.connect  # TODO
 
         self.handlers = {}
         self.plugins = []
@@ -43,34 +25,17 @@ class Creep():
             self._load_plugins(config['plugins'], config)
 
     def handle_connected(self, flap):
-        self.xmpp.send_presence()
-        logging.info("Started processing")
         for room in self.config['xmpp'].get('autojoin', []):
-            self.xmpp.plugin['xep_0045'].joinMUC(room,
-                                                 'creep',
-                                                 wait=True)
-            logging.info("Connected to chat room '%s'" % room)
+            pass  # TODO auto join rooms
 
-    def handle_message(self, message):
-        body = message['body']
-        if not self.from_us(message):
-            if not message.get_mucroom():
-                reply = self.__handle_message(body, message.get_from())
-                message.reply(reply).send()
-            elif message.get_mucroom() and body.startswith('!'):
-                reply = self.__handle_message(body[1:], message.get_from())
-                message.reply(reply).send()
-
-        logging.debug('Handled request "%s"' % body)
-
-    def mute(self, room, timeout=10):
+    def mute(self, room, timeout=10):  # TODO
         def unmute_room():
             self.unmute(room)
 
         self.muted_rooms.add(room)
         Timer(timeout, unmute_room).start()
 
-    def unmute(self, room):
+    def unmute(self, room):  # TODO
         if room in self.muted_rooms:
             self.muted_rooms.remove(room)
             self.xmpp.send_message(mto=room,
@@ -92,20 +57,11 @@ class Creep():
             return ("Unknown command: '%s'. "
                     'Run "help" for more info on available commands.' % body)
 
-    def from_us(self, message):
-        if message.get_mucroom():
-            message_from = str(message.get_from())
-            if '/' in message_from:
-                (location, resource) = message_from.split('/')
-                return (resource ==
-                        self.xmpp.plugin['xep_0045'].ourNicks[location])
-        return False
-
     def shutdown(self):
         for plugin in self.plugins:
             plugin.shutdown()
 
-        self.xmpp.disconnect(wait=True)
+        self.slack.disconnect(wait=True)  # TODO
 
     def _load_plugins(self, names, config):
         for name in names:

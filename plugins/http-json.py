@@ -7,7 +7,7 @@ from plugin import Plugin
 import json
 
 
-class HttpJson(Plugin):
+class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
 
     def __init__(self, creep, config=None):
         self.host = config['http']['host']
