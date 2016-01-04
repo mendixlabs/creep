@@ -48,13 +48,8 @@ class Quotes(Plugin):
 
     def q(self, message=None, origin=None):
         '''Retrieve a random quote. For example: "q"'''
-        l = []
-        all = list(self.bucket.objects.all())
-        for _ in range(3):
-            l.append(random.choice(all))
-        return '\n'.join(
-            self._print_quote(key.key, self._get_quote(key.key)) for key in l
-        )
+        key = random.choice(list(self.bucket.objects.all()))
+        return self._print_quote(key.key, self._get_quote(key.key))
 
     def lq(self, message=None, origin=None):
         '''List the last 10 quotes, optionally from offset'''
