@@ -1,3 +1,4 @@
 PyYAML
 dnspython
 slackbot
+boto3
