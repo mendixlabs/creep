@@ -1,7 +1,0 @@
-creep (0.1-1) unstable; urgency=low
-
-  * intial packaging
-  * based on upstream commit:
-    - efbf673 improve the creep json client with support for multi-line messages
-
- -- Pim van den Berg <pim.van.den.berg@mendix.com>  Tue, 14 May 2013 14:09:22 +0200
