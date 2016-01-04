@@ -5,6 +5,7 @@ import cgi
 from base64 import decodestring
 from plugin import Plugin
 import json
+import os
 
 
 class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
@@ -14,7 +15,7 @@ class HttpJson(Plugin):  # TODO: send message to rooms??? remove xmpp
         self.port = config['http']['port']
         self.default_room = config['xmpp']['default_room']
         self.creep = creep
-        server_address = ('', 8000)
+        server_address = ('', int(os.environ['PORT']))
         secret = (
             config['http']['secret'] if 'secret' in config['http'] else None
         )
