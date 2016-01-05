@@ -56,7 +56,11 @@ class Creep():
         if command in self.handlers:
             handler = self.handlers[command]
             try:
-                result = handler(message=params, origin=message.channel)
+                try:
+                    chan = message.channel
+                except KeyError:
+                    chan = None
+                result = handler(message=params, origin=chan)
                 message.reply(result)
             except Exception:
                 logging.exception("Couldn't handle command '%s': " % command)
