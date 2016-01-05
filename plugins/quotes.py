@@ -98,13 +98,17 @@ class Quotes(Plugin):
     def sq(self, message=None, origin=None):
         '''Search for a quote. For example: "sq name"'''
         results = []
+        limit = 3
+        if message.startswith('unlimited '):
+            message = message.replace('unlimited ', '')
+            limit = 99999
         for key in self.bucket.objects.all():
             text = self._get_quote(key.key)
             if str(message).lower() in text.lower():
                 results.append(self._print_quote(key.key))
         if results:
             random.shuffle(results)
-            return '\n'.join(results[:3])
+            return '\n'.join(results[:limit])
         else:
             return 'no results'
 
