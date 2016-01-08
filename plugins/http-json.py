@@ -4,6 +4,8 @@ import cgi
 from base64 import decodestring
 from plugin import Plugin
 import json
+from collections import deque
+from threading import Timer
 import os
 
 
@@ -13,6 +15,8 @@ class HttpJson(Plugin):
         self.port = (int(os.environ['PORT']))
         self.default_room = 'creep'
         self.creep = creep
+        self.last_messages = deque(maxlen=100)
+        self.blocked_messages = set()
         server_address = ('', self.port)
         secret = os.environ.get('HTTP_SECRET')
         if secret is not None:
@@ -35,14 +39,7 @@ class HttpJson(Plugin):
     def shutdown(self):
         self.keep_running = False
 
-    def broadcast_message(self, content, content_type):
-        if content_type == 'application/json':
-            json_request = json.loads(content)
-            msg = json_request['message']
-            room = json_request['room']
-        else:
-            msg = content
-            room = self.default_room
+    def _send_msg_to_room(self, room, message):
         if '@' in room:
             room = room.split('@')[0]
         room_id = None
@@ -52,7 +49,48 @@ class HttpJson(Plugin):
                 room_id = slack_room_id
 
         if room_id and room_id not in self.creep.muted_rooms:
-            self.creep.bot._client.send_message(room_id, msg)
+            self.creep.bot._client.send_message(room_id, message)
+
+    def broadcast_message(self, content, content_type):
+        if content_type == 'application/json':
+            json_request = json.loads(content)
+            msg = json_request['message']
+            room = json_request['room']
+        else:
+            msg = content
+            room = self.default_room
+        msg = msg.rstrip()
+
+        if ':' in msg:
+            msg_without_hostname = ':'.join(msg.split(':')[1:])
+        else:
+            msg_without_hostname = msg
+
+        self.last_messages.append(msg_without_hostname)
+
+        if msg_without_hostname in self.blocked_messages:
+            print 'hiding ' + msg + ' because rate limiting'
+            return
+        elif self.last_messages.count(msg_without_hostname) > 10:
+            self.blocked_messages.add(msg_without_hostname)
+            msg = (
+                'Rate Limiting: hiding messages like '
+                '"%s" for the next 10 minutes'
+                % msg_without_hostname
+            )
+
+            def unblock_msg():
+                self.blocked_messages.remove(msg_without_hostname)
+                self._send_msg_to_room(
+                    room,
+                    'Rate Limiting: messages like "%s" '
+                    'will be displayed again'
+                    % msg_without_hostname
+                )
+
+            Timer(600, unblock_msg).start()
+
+        self._send_msg_to_room(room, msg)
 
     def __str__(self):
         return 'http-json'
