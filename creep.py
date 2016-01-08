@@ -32,7 +32,7 @@ class Creep():
 #                    k, 'Creep reporting for duty!'
 #                )
 
-    def mute(self, room_id, timeout=10):  # TODO
+    def mute(self, room_id, timeout=10):
         def unmute_room():
             self.unmute(room_id)
 
