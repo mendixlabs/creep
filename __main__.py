@@ -1,8 +1,7 @@
 import signal
 from creep import Creep
 import logging
-import os
-import yaml
+import sys
 from slackbot.bot import respond_to
 
 creep = None
@@ -24,5 +23,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, handle_ctrl_c)
     # wait for a signal, so the main thread does not vanish (which means it
     # would not be there anymore to react on ctrl-c)
-    creep.run()
+    try:
+        creep.run()
+    except TypeError:
+        sys.exit(1)
     signal.pause()
