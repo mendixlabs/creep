@@ -29,6 +29,7 @@ class HttpJson(Plugin):
         self.httpd = HTTPServer(server_address, get_handler)
 
         self.thread = Thread(target=self._run)
+        self.thread.setDaemon(True)
         self.thread.start()
 
     def _run(self):
