@@ -53,6 +53,7 @@ class Creep():
         body = message.body['text']
         command = body.split(' ')[0] if ' ' in body else body
         params = body[body.find(" ")+1:] if ' ' in body else None
+        logging.info("incoming message '%s'" % body)
         if command in self.handlers:
             handler = self.handlers[command]
             try:
