@@ -117,9 +117,12 @@ class Quotes(Plugin):
         '''Delete a quote. Password required. Usage: "dq PASSWORD QUOTE_ID"'''
         password, quote_id = message.split(' ')
         if password == self.password:
-            self.bucket.Object(
-                str(int(quote_id))
-            ).delete()
+            quote_id = str(int(quote_id))
+            self.bucket.Object(quote_id).delete()
+            if quote_id in self.cache:
+                del self.cache[quote_id]
+            if self.memcached is not None:
+                self.memcached.delete(quote_id)
             return 'quote %s deleted' % quote_id
         else:
             return 'wrong password'
