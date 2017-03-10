@@ -22,6 +22,7 @@ class Quotes(Plugin):
     def __init__(self, creep):
         self.admins = []
         self.bucket = boto3.resource('s3').Bucket(os.environ['S3_BUCKET_NAME'])
+        self.password = os.environ['QUOTE_DELETE_PASSWORD']
         self.cache = {}
         try:
             credentials = json.loads(
@@ -113,8 +114,15 @@ class Quotes(Plugin):
             return 'no results'
 
     def dq(self, message=None, origin=None):
-        '''Delete a quote. Only available for admins'''
-        return 'not yet implemented, bug jouke plz'
+        '''Delete a quote. Password required. Usage: "dq PASSWORD QUOTE_ID"'''
+        password, quote_id = message.split(' ')
+        if password == self.password:
+            self.bucket.Object(
+                str(int(quote_id))
+            ).delete()
+            return 'quote %s deleted' % quote_id
+        else:
+            return 'wrong password'
 
     def shutdown(self):
         pass
