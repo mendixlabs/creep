@@ -43,6 +43,8 @@ class HttpJson(Plugin):
     def _send_msg_to_room(self, room, message):
         if '@' in room:
             room = room.split('@')[0]
+        if room == 'devops':
+            room = 'cloud'
         room_id = None
         channels = self.creep.bot._client.channels
         for slack_room_id, room_details in channels.iteritems():
