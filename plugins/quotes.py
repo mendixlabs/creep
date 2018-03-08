@@ -25,6 +25,7 @@ class Quotes(Plugin):
         self.password = os.environ['QUOTE_DELETE_PASSWORD']
         self.cache = {}
         try:
+            raise Exception('disable memcache')
             credentials = json.loads(
                 os.environ['VCAP_SERVICES']
             )['memcachier'][0]['credentials']
